@@ -19,6 +19,8 @@ function InputSelection() {
 
   return <div>
     <h3> input selection </h3>
+    <button onClick={configureNewInput}>+</button>
+    // LIST ALL INPUTS OF ARRAY dataStreams
   </div>
 }
 

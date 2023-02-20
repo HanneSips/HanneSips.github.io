@@ -26,7 +26,7 @@ function Output() {
     setIsFullscreen(false);
   }
 
-  return <div id="output-canvas">
+  return <div id="output-canvas" style={{height: "100%", width: "100%" }}>
     {! isFullscreen ? 
     (<button onClick={openFullScreen}></button>) :
     (<button onClick={closeFullScreen}></button>)}

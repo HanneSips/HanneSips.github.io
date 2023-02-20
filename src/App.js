@@ -36,7 +36,8 @@ function App() {
 
 
 const Column = ({ isSelected, onClick, content, colour}) => (
-  <div style={{ flex: isSelected ? 4 : 1, background: colour, height: '100%', padding: '5px' }} onClick={onClick}>
+  <div style={{ flex: isSelected ? 8 : 1, background: colour, 
+  width: "100%", height: "100%", padding: '5px' }} onClick={onClick}>
     {content}
   </div>
 );
