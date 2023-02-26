@@ -8,6 +8,7 @@ import '../App.css';
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
+import InputSelection from "./input_selection/input_selection";
 
 
 function VisualPlayground() {
@@ -51,7 +52,7 @@ function VisualPlayground() {
   };
 
   return (
-    <div className="testtest" id="editor" style={{ width: "100%", height: "100%"}}>
+    <div id="editor" style={{ width: "100%", height: "100%"}}>
       <Controlled
       className="CodeMirror"
         value={code}
