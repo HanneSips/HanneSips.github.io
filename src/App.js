@@ -15,19 +15,19 @@ function App() {
       <Column 
         isSelected={selected === 0} 
         onClick={() => handleClick(0)} 
-        content={<InputSelection />}
+        Content={InputSelection}
         colour='lightgray'
       />
       <Column 
         isSelected={selected === 1} 
         onClick={() => handleClick(1)} 
-        content={<VisualPlayground />}
+        Content={VisualPlayground}
         colour='gray'
       />
       <Column 
         isSelected={selected === 2} 
         onClick={() => handleClick(2)} 
-        content={<Output />}
+        Content={Output}
         colour='lightgray'
       />
     </div>
@@ -35,10 +35,10 @@ function App() {
 };
 
 
-const Column = ({ isSelected, onClick, content, colour}) => (
+const Column = ({ isSelected, onClick, Content, colour}) => (
   <div style={{ flex: isSelected ? 8 : 1, background: colour, 
   width: "100%", height: "100%", padding: '5px' }} onClick={onClick}>
-    {content}
+    <Content selected={isSelected}></Content>
   </div>
 );
 

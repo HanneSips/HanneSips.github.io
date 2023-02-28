@@ -8,7 +8,7 @@ import '../App.css';
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
-import InputSelection from "./input_selection/input_selection";
+import InputSelection from "./input_selection/input_selection_old";
 
 
 function VisualPlayground() {

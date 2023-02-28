@@ -7,6 +7,10 @@ import { Controlled } from "react-codemirror2";
 class Observable {
   constructor() {
     this.code = "//Observable";
+
+    /* fromEvent(document, 'keydown')
+      .pipe(
+        filter(event => event.code === 'Space') */
   }
 
   setCode(newCode) {
@@ -14,17 +18,17 @@ class Observable {
   }
 }
 
-function ObservableEditor({ observable }) {
-  const [code, setCode] = useState(observable.code);
+function ObservableEditor({ element }) {
+  const [code, setCode] = useState(element.code);
 
   // nu geen state code, maar indien nodig kan ik dat nog toevoegen
   return (
     <div>
       <Controlled
-        value={observable.code} // hier geen state nodig zodat de Controlled zich aanpast? Ik denk het wel
+        value={element.code} // hier geen state nodig zodat de Controlled zich aanpast? Ik denk het wel
         onBeforeChange={(editor, data, value) => {
-          observable.setCode(value);
-          setCode(observable.code)
+          element.setCode(value);
+          setCode(element.code)
         }}
         options={{
           mode: "javascript",

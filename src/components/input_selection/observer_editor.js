@@ -15,15 +15,15 @@ class Observer {
   }
 }
 
-function ObserverEditor({ observer }) {
-  const [code, setCode] = useState(observer.code);
+function ObserverEditor({ element }) {
+  const [code, setCode] = useState(element.code);
 
   return (
     <div>
       <Controlled
-        value={observer.code}
+        value={element.code}
         onBeforeChange={(editor, data, value) => {
-          observer.setCode(value);
+          element.setCode(value);
           setCode(value)
         }}
         options={{
