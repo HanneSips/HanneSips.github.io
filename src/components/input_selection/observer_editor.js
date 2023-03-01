@@ -3,7 +3,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
-
+import * as rxjs_lib from 'rxjs';
 
 class Observer {
   constructor() {
@@ -11,6 +11,10 @@ class Observer {
   }
 
   setCode(newCode) {
+    this.code = newCode;
+  }
+
+  changeCode(newCode) {
     this.code = newCode;
   }
 }
@@ -23,7 +27,7 @@ function ObserverEditor({ element }) {
       <Controlled
         value={element.code}
         onBeforeChange={(editor, data, value) => {
-          element.setCode(value);
+          element.changeCode(value);
           setCode(value)
         }}
         options={{

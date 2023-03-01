@@ -8,7 +8,6 @@ import '../App.css';
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
-import InputSelection from "./input_selection/input_selection_old";
 
 
 function VisualPlayground() {
@@ -23,7 +22,6 @@ function VisualPlayground() {
   	const b_colour = test % 256
 	  const c_colour = 256 - test % 256
 
-    console.log('test')
     p.background(b_colour);
     test = test + 1;
   	p.translate(canvas.width / 2, canvas.height / 2);
@@ -44,6 +42,7 @@ function VisualPlayground() {
       canvas.parent("output-canvas");
       return canvas
     }
+
     try {
       eval(code)
     } catch (error) {
