@@ -4,9 +4,13 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { Obsvable, ObservableEditor } from "./observable_editor";
 import { Observer, ObserverEditor } from "./observer_editor";
+import { VisualParameter, VisualParameterComp } from "./visual_parameters";
 
 
-function InputSelection( { selected, observables, observers, addElementFunction, removeElementFunction, changeObservables, changeObservers, executeCode } ) {
+function InputSelection( { 
+  selected, observables, observers, parameters, changeParameters,
+  addElementFunction, removeElementFunction, 
+  changeObservables, changeObservers, executeCode } ) {
   return (
     <div style={{ display: 'flex', height: '100%', flexDirection: 'row' }}>
       {selected ? (
@@ -23,14 +27,15 @@ function InputSelection( { selected, observables, observers, addElementFunction,
             />
         </>
       ) : null}      
-      <VerticalColumn colour='lightgray' Component={ObserverEditor} elementArray={[]}/>
+      <VerticalColumn colour='lightgray' Component={VisualParameterComp} elementArray={parameters}
+        addElementFunction={() => (addElementFunction(parameters, new VisualParameter(), changeParameters))}/>
     </div>
   );
 }
 
 
 function VerticalColumn ({ colour, Component, elementArray, addElementFunction, removeElementFunction, executeCode }) {
-
+  console.log(elementArray)
   return (
     <div style={{ flex: 1, background: colour, height: "100%", padding: '5px', display: 'flex', flexDirection: 'column' }}>
       <button onClick={addElementFunction} style={{marginBottom: '20px'}}>+</button>

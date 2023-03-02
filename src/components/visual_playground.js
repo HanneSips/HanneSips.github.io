@@ -10,7 +10,7 @@ import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 
 
-function VisualPlayground() {
+function VisualPlayground( changeVisualCode ) {
   const [code, setCode] = useState(`
   var canvas
   var test = 200
@@ -33,6 +33,7 @@ function VisualPlayground() {
 
   function handleCodeChange(editor, data, value) {
     setCode(value);
+    //changeVisualCode(value)
   }
 
   const sketch = (p) => {

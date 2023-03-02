@@ -11,6 +11,8 @@ function App() {
   const [selected, setSelected] = useState(null);
   const [observables, changeObservables] = useState([])
   const [observers, changeObservers] = useState([])
+  const [parameters, changeParameters] = useState([])
+  const [visualCode, changeVisualCode] = useState("")
 
   function removeElement(elementArray, element, changeElementArrayState) {
     const index = elementArray.indexOf(element);
@@ -25,6 +27,7 @@ function App() {
     const newElementArray = [...elementArray];
     newElementArray.push(newElement);
     changeElementArrayState(newElementArray);
+    console.log(elementArray)
   }
 
   const handleClick = (index) => {
@@ -48,6 +51,10 @@ function App() {
     var code = ``
     const rxjs = rxjs_lib
 
+    parameters.forEach(parameter => {
+      code = code + " \n" + `var ${parameter.name} = "${parameter.initialValue}"`
+    })
+
     // make one string of all observable code
     observables.forEach(observable => {
       code = code + " \n" + observable.code
@@ -65,9 +72,12 @@ function App() {
       <Column 
         isSelected={selected === 0} 
         onClick={() => handleClick(0)} 
-        content={<InputSelection observables={observables} observers={observers} selected={selected === 0}
-          addElementFunction={addElement} removeElementFunction={removeElement} 
+        content={<InputSelection 
+          observables={observables} observers={observers} parameters={parameters}
           changeObservables={changeObservables} changeObservers={changeObservers}
+          changeParameters={changeParameters}
+          selected={selected === 0}
+          addElementFunction={addElement} removeElementFunction={removeElement} 
           executeCode={executeObs}
         />}
         colour='lightgray'
@@ -75,7 +85,7 @@ function App() {
       <Column 
         isSelected={selected === 1} 
         onClick={() => handleClick(1)} 
-        content={<VisualPlayground selected={selected}/>}
+        content={<VisualPlayground selected={selected} changeVisualCode={changeVisualCode}/>}
         colour='gray'
       />
       <Column 
