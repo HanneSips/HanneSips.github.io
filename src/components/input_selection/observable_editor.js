@@ -1,32 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
 
 class Obsvable {
-  constructor() {
+  constructor(number) {
+    this.name = `observable_${number}`
     this.code = `//Observable
-    rxjs.fromEvent(document, 'keydown')`
-      //.pipe(
-       // filter(event => event.code === 'Space')
-       // ) `
+    return rxjs.fromEvent(document, 'keydown')
+      .pipe(
+        rxjs.filter(event => event.code === 'Space')
+        ) `
   }
 
   changeCode(newCode) {
     this.code = newCode;
   }
+
+  changeName(newName) {
+    this.name = newName
+  }
 }
 
 function ObservableEditor({ element }) {
   const [code, setCode] = useState(element.code);
+  const [name, setName] = useState(element.name)
+  useEffect(() => {
+    element.changeName(name);
+  }, [name]);
+
   return (
-    <div>
+    <div style={{maxWidth: "90%"}}>
+      <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
       <Controlled
-        value={code} 
+        className="Observ"
+        value={code}
         onBeforeChange={(editor, data, value) => {
           element.changeCode(value);
-          setCode(value)
+          setCode(value);
         }}
         options={{
           mode: "javascript",

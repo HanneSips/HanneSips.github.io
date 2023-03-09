@@ -1,54 +1,42 @@
 import React, { useState } from 'react';
 
 class VisualParameter {
-  constructor(name="", changeFunction = `change${name}`, initialValue = "") {
-    console.log("new par")
-    this.name = name;
-    this.changeFunction = changeFunction;
-    this.initialValue = initialValue;
+  constructor(number) {
+    this.name = `parameter_${number}`
+    this.value = "";
   }
 
   changeName(newName) {
-    console.log("change name")
     this.name = newName
   }
-  changeChangeFunction(newChangeFunction) {
-    this.changeFunction = newChangeFunction
-  }
-  changeInitialValue(newInitialValue) {
-    this.initialValue = newInitialValue;
+  changeValue(newValue) {
+    this.value = parseInt(newValue);
   }
 }
 
-function VisualParameterComp({ element }) {
+function VisualParameterComp({ element, state }) {
   const [name, changeName] = useState(element.name)
-  const [changeFuntion, changeChangeFunction] = useState(element.changeFunction)
-  const [initialValue, changeInitialValue] = useState(element.initialValue)
-
+  const [value, changeValue] = useState(element.value)
+  console.log("RENDER PARAMS")
+  console.log("state in VisualParam; ", state)
+  console.log("element value: ", element.value)
 
   return (
     <div>
-        <div key={element.name}>
+        <div >
           <input
             type="text"
-            name="name"
+            name="nameField"
             id={element.name}
             value={name}
             onChange={(event) => {element.changeName(event.target.value); changeName(event.target.value)}}
           />
-          <input
-            type="text"
-            name="changeFunction"
-            id={element.changeFunction}
-            value={changeFuntion}
-            onChange={(event) => {element.changeChangeFunction(event.target.value); changeChangeFunction(event.target.value)}}
-          />
-          <input
+          <input key={state}
             type="text"
             name="initialValue"
-            id={element.initialValue}
-            value={initialValue}
-            onChange={(event) => {element.changeInitialValue(event.target.value); changeInitialValue(event.target.value)}}
+            id={element.value}
+            value={element.value}
+            onChange={(event) => {element.changeValue(event.target.value); changeValue(event.target.value)}}
           />
         </div>
     </div>

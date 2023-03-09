@@ -29,7 +29,19 @@
 }
 
 .CodeMirror { 
-  height: 100% !important
+  height: 100% !important;
+}
+
+.cm-matchhighlight {
+  background: gray !important
+}
+
+.Oberv {
+  display: inline-block !important ;
+  max-width: 100% !important ;/* set the max-width to your desired width */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
 @keyframes App-logo-spin {

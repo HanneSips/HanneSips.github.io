@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, memo, useRef, useEffect } from "react";
 
-function Output() {
+function Output({ selected, updateVisualWidth, updateVisualHeight }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvas = document.getElementById('output-canvas');
+  console.log("rerender output")
 
   function openFullScreen() {
     if (canvas.requestFullscreen) {
@@ -26,11 +27,27 @@ function Output() {
     setIsFullscreen(false);
   }
 
-  return <div id="output-canvas" style={{height: "100%", width: "100%" }}>
-    {! isFullscreen ? 
-    (<button onClick={openFullScreen}></button>) :
-    (<button onClick={closeFullScreen}></button>)}
-  </div>
+  const ref = useRef(null);
+
+  const handleResize = () => {
+    const { width, height } = ref.current.getBoundingClientRect();
+    updateVisualWidth(width);
+    updateVisualHeight(height);
+  };
+
+  useEffect(() => {
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return <div ref = {ref} id="output-canvas" style={{height: "100%", width: "100%" }}>
+        {! isFullscreen ? 
+        (<button onClick={openFullScreen}></button>) :
+        (<button onClick={closeFullScreen}></button>)}
+      </div>
 }
 
-export default Output
+const MemoizedOutput = memo(Output);
+
+export {MemoizedOutput, Output} 

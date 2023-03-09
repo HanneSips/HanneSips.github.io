@@ -5,67 +5,64 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { ReactP5Wrapper as Sketch } from "react-p5-wrapper";
 import '../App.css';
-import "codemirror/addon/hint/show-hint.css";
-import "codemirror/addon/hint/show-hint";
-import "codemirror/addon/hint/javascript-hint";
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material.css';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/javascript-hint';
+import 'codemirror/addon/hint/show-hint.css';
+import 'codemirror/addon/hint/anyword-hint';
+import 'codemirror/keymap/sublime';
+import 'codemirror/addon/edit/closebrackets';
+import 'codemirror/addon/edit/closetag';
+import 'codemirror/addon/fold/foldcode';
+import 'codemirror/addon/fold/foldgutter';
+import 'codemirror/addon/fold/brace-fold';
+import 'codemirror/addon/fold/comment-fold';
+import 'codemirror/addon/fold/foldgutter.css';
 
 
-function VisualPlayground( changeVisualCode ) {
-  const [code, setCode] = useState(`
-  var canvas
-  var test = 200
-  p.setup = () => {
-    canvas = start_canvas()
-  };
-
-  p.draw = () => {
-  	const b_colour = test % 256
-	  const c_colour = 256 - test % 256
-
-    p.background(b_colour);
-    test = test + 1;
-  	p.translate(canvas.width / 2, canvas.height / 2);
-	p.fill(c_colour)
-	p.noStoke
-    p.circle(0, 0, 500)
-  };
-  `);
-
+function VisualPlayground( { visualCode , changeVisualCode } ) {
   function handleCodeChange(editor, data, value) {
-    setCode(value);
-    //changeVisualCode(value)
+    editor.showHint({ completeSingle: false });
+    changeVisualCode(value)
   }
 
-  const sketch = (p) => {
-    function start_canvas() {
-      const parent = document.getElementById("output-canvas")
-      const canvas = p.createCanvas(parent.offsetWidth, parent.offsetHeight);
-      canvas.parent("output-canvas");
-      return canvas
-    }
-
-    try {
-      eval(code)
-    } catch (error) {
-      console.log("error")
-    }
-  };
+  console.log("render playground")
 
   return (
-    <div id="editor" style={{ width: "100%", height: "100%"}}>
+    <div id="editor" style={{ maxWidth: "100%", height: "100%"}}>
       <Controlled
-      className="CodeMirror"
-        value={code}
+        className="CodeMirror"
+        value={visualCode}
         onBeforeChange={handleCodeChange}
         options={{
           mode: "javascript",
           theme: "material",
           lineNumbers: true,
+          lineWrapping: true,
+          smartIndent: true,
+          foldGutter: true,
+          gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+          autoCloseTags: true,
+          keyMap: 'sublime',
+          matchBrackets: true,
+          autoCloseBrackets: true,
+          extraKeys: {
+            'Ctrl-Space': 'autocomplete'
+          },
+          hintOptions: {
+          },
+          styleActiveLine: true,
+          styleActiveSelected: true,
+
+          highlightSelectionMatches: {
+            minChars: 2,
+            showToken: /Hello/,
+            style:'matchhighlight'
+          }
         }}
       />
-      <div>
-        <Sketch sketch={sketch} />
-      </div>
     </div>
   );
 }
