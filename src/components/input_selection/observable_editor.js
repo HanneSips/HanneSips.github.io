@@ -6,11 +6,11 @@ import { Controlled } from "react-codemirror2";
 
 class Obsvable {
   constructor(number) {
-    this.name = `observable_${number}`
+    this.name = `#OBS${number}`
     this.code = `//Observable
     return rxjs.fromEvent(document, 'keydown')
       .pipe(
-        rxjs.filter(event => event.code === 'Space')
+        rxjs.filter(event => event.code === 'ArrowUp')
         ) `
   }
 

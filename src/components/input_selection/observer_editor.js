@@ -7,10 +7,10 @@ import * as rxjs_lib from 'rxjs';
 
 class Observer {
   constructor(number) {
-    this.name = `observer_${number}`
+    this.name = `#OBVR${number}`
     this.code = `//Observer
-    return  obsvbls["observable_0"].subscribe(
-      () => {inputs["parameter_0"] = inputs["parameter_0"] + 1; }  
+    return  obs["#OBS0"].subscribe(
+      () => {params["#PARAM0"] = params["#PARAM0"] + 10; }  
     )    `;
   }
 

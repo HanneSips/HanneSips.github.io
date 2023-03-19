@@ -10,10 +10,10 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/show-hint";
-import "codemirror/addon/hint/javascript-hint";
+import "codemirror/addon/hint/javascript-hint";  
 
-var inputs = {};
-const obsvbls = {};
+var params = {};
+const obs = {};
 const subscriptions = {}
 
 function App() {
@@ -26,21 +26,21 @@ function App() {
   const [parameters, changeParameters] = useState([])
   const [visualCode, changeVisualCode] = useState(`
   var canvas
-  var test = 200
+  var colour = 200
   p.setup = () => {
     canvas = start_canvas()
   };
 
   p.draw = () => {
-  	const b_colour = test % 256
-	  const c_colour = 256 - test % 256
+  	const b_colour = colour % 256
+	  const c_colour = 256 - colour % 256
 
     p.background(b_colour);
-    test = test + 1;
+    colour = colour + 1;
   	p.translate(canvas.width / 2, canvas.height / 2);
-	p.fill(c_colour)
-	p.noStoke
-    p.circle(0, 0, inputs["test"])
+	  p.fill(c_colour)
+	  p.noStoke
+    p.circle(0, 0, params["#PARAM0"])
   };
   `);
 
@@ -63,10 +63,10 @@ function App() {
     setSelected(index);
   };
 
-  function stopDynamicInputs() {
-    inputs = {}
+  function stopDynamicParams() {
+    params = {}
     // delete observables
-    for (const observable in obsvbls) {
+    for (const observable in obs) {
       //observable.complete()
     };
     for (const subscription in subscriptions) {
@@ -74,42 +74,42 @@ function App() {
     }
   }
 
-  function executeDynamicInputs() {
+  function executeDynamicParams() {
     console.log("execute obs!!!")
     // function that executes all the code of all observable and observer editors
-    stopDynamicInputs()
+    stopDynamicParams()
 
     // Create parameters
     parameters.forEach(parameter => {
-      inputs[parameter.name] = parameter.value
+      params[parameter.name] = parameter.value
     })
 
     // Create observables
     observables.forEach(observable => {
       const obsvblFunction = new Function('rxjs', observable.code)
-      obsvbls[observable.name] = obsvblFunction(rxjs)
+      obs[observable.name] = obsvblFunction(rxjs)
       //code = code + " \n" + observable.code
     });
 
 
     // Create observers
     observers.forEach(observer => {
-      const obsrvrFunction = new Function('obsvbls', 'inputs', observer.code)
-      subscriptions[observer.name] = obsrvrFunction(obsvbls, inputs)
+      const obsrvrFunction = new Function('obs', 'params', observer.code)
+      subscriptions[observer.name] = obsrvrFunction(obs, params)
     });
 
     // Use Object.values to convert the dictionary into an array of observables
-    const obsvblsList = Object.values(obsvbls);
+    const obsvblsList = Object.values(obs);
 
     // Use merge to merge all the observables into a single observable
     const mergedObsvbls = rxjs.merge(...obsvblsList);
-    obsvbls['mergedObservable'] = mergedObsvbls
+    obs['mergedObservable'] = mergedObsvbls
     subscriptions["inputPassing"] = mergedObsvbls.subscribe(
       () => {
-        for (const key in inputs) {
+        for (const key in params) {
           const visualParam = parameters.find(vp => vp.name === key)
           if (visualParam) {
-            visualParam.changeValue(inputs[key]);
+            visualParam.changeValue(params[key]);
             forceStateChange(Math.random())
           }
         }
@@ -128,7 +128,7 @@ function App() {
           changeParameters={changeParameters}
           selected={selected === 0}
           addElementFunction={addElement} removeElementFunction={removeElement} 
-          executeCode={executeDynamicInputs}
+          executeCode={executeDynamicParams}
           state={state}
         />}
         colour='lightgray'

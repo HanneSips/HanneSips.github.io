@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 class VisualParameter {
   constructor(number) {
-    this.name = `parameter_${number}`
+    this.name = `#PARAM${number}`
     this.value = "";
   }
 
@@ -17,9 +17,6 @@ class VisualParameter {
 function VisualParameterComp({ element, state }) {
   const [name, changeName] = useState(element.name)
   const [value, changeValue] = useState(element.value)
-  console.log("RENDER PARAMS")
-  console.log("state in VisualParam; ", state)
-  console.log("element value: ", element.value)
 
   return (
     <div>
