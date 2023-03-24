@@ -27,10 +27,11 @@ function InputSelection( {
                     <VerticalColumn name="OBSERVABLES" colour='lightgray' Component={ObservableEditor} elementArray={observables} 
                       addElementFunction={() => (addElementFunction(observables, new Obsvable(observables.length), changeObservables))} 
                       removeElementFunction={(element) => (removeElementFunction(observables, element, changeObservables))}
+                      state={state}
                       style={{width: "30%", height: "100%"}}/>
                     <VerticalColumn name="OBSERVERS" colour='lightgray' Component={ObserverEditor} elementArray={observers} 
                       addElementFunction={() => (addElementFunction(observers, new Observer(observers.length), changeObservers))} 
-                      removeElementFunction={(element) => (removeElementFunction(observers, element, changeObservers))}
+                      removeElementFunction={(element) => (removeElementFunction(observers, element, changeObservers))} 
                       style={{width: "30%", height: "100%"}}/>
                   </>
                 ) : null}      
@@ -46,7 +47,7 @@ function InputSelection( {
 }
 
 
-function VerticalColumn ({ name, colour, Component, elementArray, addElementFunction, removeElementFunction, state }) {
+function VerticalColumn ({ name, colour, Component, elementArray, addElementFunction, removeElementFunction, state }) { //state
   return (
     <div style={{ flex: 1, background: colour, height: "100%", padding: '5px', 
     display: 'flex', flexDirection: 'column', maxWidth: '100%',
@@ -55,7 +56,7 @@ function VerticalColumn ({ name, colour, Component, elementArray, addElementFunc
       <button onClick={addElementFunction} style={{marginBottom: '20px'}}>+</button>
       {elementArray.map((element) => (
           <div style={{ overflow: 'auto', flex: 1, display: 'flex', marginBottom: '20px', justifyContent: 'space-between', alignItems: 'center', width: "95%" }}>
-            <Component element={element} state={state}></Component> 
+            <Component element={element} state = {state} ></Component>  
             <button onClick={() => removeElementFunction(element)}>-</button>
           </div>
           ))}

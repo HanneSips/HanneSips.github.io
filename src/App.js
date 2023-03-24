@@ -88,16 +88,17 @@ function App() {
     observables.forEach(observable => {
       const obsvblFunction = new Function('rxjs', observable.code)
       obs[observable.name] = obsvblFunction(rxjs)
-      //code = code + " \n" + observable.code
     });
 
 
     // Create observers
     observers.forEach(observer => {
-      const obsrvrFunction = new Function('obs', 'params', observer.code)
+      const functionCode = `${observer.code};`
+      const obsrvrFunction = new Function('obs', 'params', functionCode)
       subscriptions[observer.name] = obsrvrFunction(obs, params)
     });
 
+    /// for any observable that fires a new element, I want to reload all the parameters that changed value
     // Use Object.values to convert the dictionary into an array of observables
     const obsvblsList = Object.values(obs);
 
@@ -106,15 +107,24 @@ function App() {
     obs['mergedObservable'] = mergedObsvbls
     subscriptions["inputPassing"] = mergedObsvbls.subscribe(
       () => {
+        // Update parameter values
         for (const key in params) {
           const visualParam = parameters.find(vp => vp.name === key)
-          if (visualParam) {
+          const old_value = visualParam.value
+          const new_value = params[key]
+          if (visualParam && !(new_value === old_value)) {
             visualParam.changeValue(params[key]);
             forceStateChange(Math.random())
           }
         }
       }
     )
+
+    // for each observable, I want to add an observer that changes the colours
+/*     observables.forEach(observable => {
+      console.log(observables)
+      subscriptions[observable.name + '_highlight'] = obs[observable.name].subscribe(() => {console.log('increase highlight'); observable.increaseHighlight()})
+    }); */
   }
 
   return (

@@ -36,12 +36,22 @@
   background: gray !important
 }
 
-.Oberv {
+.Observ {
   display: inline-block !important ;
   max-width: 100% !important ;/* set the max-width to your desired width */
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
+}
+
+.my-input {
+  border: 1px solid white; /* replace "red" with the color of your choice */
+  background-color: white
+}
+
+.temp-border {
+  border-color: green; 
+  background-color: green
 }
 
 @keyframes App-logo-spin {
