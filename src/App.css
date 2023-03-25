@@ -54,6 +54,11 @@
   background-color: green
 }
 
+.error-message {
+  border-color: red; 
+  background-color: white
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

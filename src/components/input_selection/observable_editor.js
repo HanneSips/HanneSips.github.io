@@ -3,6 +3,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
+import { render } from "@testing-library/react";
 
 class Obsvable {
   constructor(number) {
@@ -13,6 +14,7 @@ class Obsvable {
         rxjs.filter(event => event.code === 'ArrowUp')
         ) `
     this.highlight = 0
+    this.errorMessage = ''
   }
 
   changeCode(newCode) {
@@ -26,24 +28,41 @@ class Obsvable {
   newHighlight() {
     this.highlight += 1
   }
+
+  setErrorMessage(errorMessage) {
+    console.log("new errorrrr: ", errorMessage)
+    this.errorMessage = errorMessage
+  }
 }
 
 function ObservableEditor({ element, state }) {
   const [code, setCode] = useState(element.code);
   const [name, setName] = useState(element.name)
   const [borderColor, setBorderColor] = useState(''); // initialize with an empty string
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const prevValueRef = useRef(element.highlight);
+  const previousHighlight = useRef(element.highlight);
 
-  useEffect(() => {
-    if (prevValueRef.current !== element.highlight) {
+  function checkHighlight() {
+    if (previousHighlight.current !== element.highlight) {
       console.log("new state: ", state)
       setBorderColor('temp-border'); // set temporary border color
       setTimeout(() => {
         setBorderColor(''); // reset border color after 1 second
       }, 500); 
-      prevValueRef.current = element.highlight;
+      previousHighlight.current = element.highlight;
     }
+  }
+
+  function checkErrorMessage() {
+    console.log("check updated error: ", element.errorMessage)
+    setErrorMessage(element.errorMessage)
+    console.log(errorMessage.length)
+  }
+
+  useEffect(() => {
+    checkHighlight()
+    checkErrorMessage()
   }, [state]);
 
   return (
@@ -62,6 +81,13 @@ function ObservableEditor({ element, state }) {
           lineNumbers: true,
         }}
       />
+      {(errorMessage.length > 0) && (
+        <input 
+          type="text" 
+          value={errorMessage}
+          className={`error-message`} 
+        />
+      )}
     </div>
   );
 }

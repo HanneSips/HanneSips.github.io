@@ -32,6 +32,7 @@ function InputSelection( {
                     <VerticalColumn name="OBSERVERS" colour='lightgray' Component={ObserverEditor} elementArray={observers} 
                       addElementFunction={() => (addElementFunction(observers, new Observer(observers.length), changeObservers))} 
                       removeElementFunction={(element) => (removeElementFunction(observers, element, changeObservers))} 
+                      state={state}
                       style={{width: "30%", height: "100%"}}/>
                   </>
                 ) : null}      

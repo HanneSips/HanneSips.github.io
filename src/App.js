@@ -86,20 +86,33 @@ function App() {
 
     // Create observables
     observables.forEach(observable => {
-      const obsvblFunction = new Function('rxjs', observable.code)
-      obs[observable.name] = obsvblFunction(rxjs)
-      subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
-        console.log("observable: ", observable)
-        observable.newHighlight()
-      })
+      try {
+        const obsvblFunction = new Function('rxjs', observable.code)
+        obs[observable.name] = obsvblFunction(rxjs)
+        subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
+          console.log("observable: ", observable)
+          observable.newHighlight()
+        })
+        observable.setErrorMessage('')
+      } catch (error) {
+        console.log("error!!!")
+        observable.setErrorMessage(error.message)
+      }
     });
 
 
     // Create observers
     observers.forEach(observer => {
-      const functionCode = `${observer.code}; `
-      const obsrvrFunction = new Function('obs', 'params', functionCode)
-      subscriptions[observer.name] = obsrvrFunction(obs, params)
+      try {
+        const functionCode = `${observer.code}; `
+        const obsrvrFunction = new Function('obs', 'params', functionCode)
+        subscriptions[observer.name] = obsrvrFunction(obs, params)
+        observer.setErrorMessage('')
+      } catch (error) {
+        console.log("error!!!")
+        observer.setErrorMessage(error.message)
+      }
+      
     });
 
     /// for any observable that fires a new element, I want to reload all the parameters that changed value
@@ -123,12 +136,7 @@ function App() {
         }
       }
     )
-
-    // for each observable, I want to add an observer that changes the colours
-/*     observables.forEach(observable => {
-      console.log(observables)
-      subscriptions[observable.name + '_highlight'] = obs[observable.name].subscribe(() => {console.log('increase highlight'); observable.increaseHighlight()})
-    }); */
+    forceStateChange(Math.random());
   }
 
   return (
