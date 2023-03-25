@@ -22,6 +22,10 @@ class Obsvable {
   changeName(newName) {
     this.name = newName
   }
+
+  newHighlight() {
+    this.highlight += 1
+  }
 }
 
 function ObservableEditor({ element, state }) {
@@ -29,16 +33,16 @@ function ObservableEditor({ element, state }) {
   const [name, setName] = useState(element.name)
   const [borderColor, setBorderColor] = useState(''); // initialize with an empty string
 
-  const prevValueRef = useRef(state);
+  const prevValueRef = useRef(element.highlight);
 
   useEffect(() => {
-    if (prevValueRef.current !== state) {
+    if (prevValueRef.current !== element.highlight) {
       console.log("new state: ", state)
       setBorderColor('temp-border'); // set temporary border color
       setTimeout(() => {
         setBorderColor(''); // reset border color after 1 second
       }, 500); 
-      prevValueRef.current = state;
+      prevValueRef.current = element.highlight;
     }
   }, [state]);
 

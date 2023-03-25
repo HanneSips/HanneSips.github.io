@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 class VisualParameter {
   constructor(number) {
@@ -18,13 +18,18 @@ function VisualParameterComp({ element, state}) {
   const [name, changeName] = useState(element.name)
   const [value, changeValue] = useState(element.value)
   const [borderColor, setBorderColor] = useState(''); // initialize with an empty string
+  const prevValueRef = useRef(element.value);
 
   useEffect(() => {
-    // Execute your function here
-    setBorderColor('temp-border'); // set temporary border color
-    setTimeout(() => {
-      setBorderColor(''); // reset border color after 1 second
-    }, 500);
+    console.log(element.name)
+    console.log(element.value)
+    if (prevValueRef.current !== element.value) {
+      setBorderColor('temp-border'); // set temporary border color
+      setTimeout(() => {
+        setBorderColor(''); // reset border color after 1 second
+      }, 500);
+      prevValueRef.current = element.value
+    }
   }, [state]) ;
 
   function handleValueChange(event) {

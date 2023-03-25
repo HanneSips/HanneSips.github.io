@@ -88,12 +88,16 @@ function App() {
     observables.forEach(observable => {
       const obsvblFunction = new Function('rxjs', observable.code)
       obs[observable.name] = obsvblFunction(rxjs)
+      subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
+        console.log("observable: ", observable)
+        observable.newHighlight()
+      })
     });
 
 
     // Create observers
     observers.forEach(observer => {
-      const functionCode = `${observer.code};`
+      const functionCode = `${observer.code}; `
       const obsrvrFunction = new Function('obs', 'params', functionCode)
       subscriptions[observer.name] = obsrvrFunction(obs, params)
     });
@@ -114,8 +118,8 @@ function App() {
           const new_value = params[key]
           if (visualParam && !(new_value === old_value)) {
             visualParam.changeValue(params[key]);
-            forceStateChange(Math.random())
           }
+          forceStateChange(Math.random());
         }
       }
     )
