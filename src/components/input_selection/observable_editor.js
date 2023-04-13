@@ -15,7 +15,10 @@ class Obsvable {
         ) `
     this.highlight = 0
     this.errorMessage = ''
+    this.category = 'observable'
+    this.coreCategory = this.category
   }
+
 
   changeCode(newCode) {
     this.code = newCode;
@@ -25,17 +28,20 @@ class Obsvable {
     this.name = newName
   }
 
+  changeCategory(newCategory) {
+    this.category = newCategory
+  }
+
   newHighlight() {
     this.highlight += 1
   }
 
   setErrorMessage(errorMessage) {
-    console.log("new errorrrr: ", errorMessage)
     this.errorMessage = errorMessage
   }
 }
 
-function ObservableEditor({ element, state }) {
+function ObservableEditor({ element, state, highlightNodeFunction }) {
   const [code, setCode] = useState(element.code);
   const [name, setName] = useState(element.name)
   const [borderColor, setBorderColor] = useState(''); // initialize with an empty string
@@ -45,19 +51,13 @@ function ObservableEditor({ element, state }) {
 
   function checkHighlight() {
     if (previousHighlight.current !== element.highlight) {
-      console.log("new state: ", state)
-      setBorderColor('temp-border'); // set temporary border color
-      setTimeout(() => {
-        setBorderColor(''); // reset border color after 1 second
-      }, 500); 
+      highlightNodeFunction(element)
       previousHighlight.current = element.highlight;
     }
   }
 
   function checkErrorMessage() {
-    console.log("check updated error: ", element.errorMessage)
     setErrorMessage(element.errorMessage)
-    console.log(errorMessage.length)
   }
 
   useEffect(() => {
@@ -66,7 +66,7 @@ function ObservableEditor({ element, state }) {
   }, [state]);
 
   return (
-    <div style={{maxWidth: "90%"}}>
+    <div style={{ maxWidth: "90%" }}>
       <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={`my-input ${borderColor}`} />
       <Controlled
         className="Observ"
@@ -82,10 +82,10 @@ function ObservableEditor({ element, state }) {
         }}
       />
       {(errorMessage.length > 0) && (
-        <input 
-          type="text" 
+        <input
+          type="text"
           value={errorMessage}
-          className={`error-message`} 
+          className={`error-message`}
         />
       )}
     </div>

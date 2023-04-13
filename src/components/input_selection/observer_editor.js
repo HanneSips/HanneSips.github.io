@@ -14,7 +14,9 @@ class Observer {
     )    `;
     this.highlight = 0
     this.errorMessage = ''
+    this.category = 'observer'
   }
+
 
   setCode(newCode) {
     this.code = newCode;
@@ -29,14 +31,12 @@ class Observer {
   }
 
   setErrorMessage(errorMessage) {
-    console.log("new errorrrr: ", errorMessage)
     this.errorMessage = errorMessage
   }
 }
 
 
-function ObserverEditor({ element, state }) {
-  console.log("state", state)
+function ObserverEditor({ element, state, highlightNodeFunction }) {
   const [code, setCode] = useState(element.code);
   const [name, setName] = useState(element.name)
   const [borderColor, setBorderColor] = useState(''); // initialize with an empty string
@@ -45,32 +45,28 @@ function ObserverEditor({ element, state }) {
   const previousHighlight = useRef(element.highlight);
 
   function checkErrorMessage() {
-    console.log("check updated error observer: ", element.errorMessage)
     setErrorMessage(element.errorMessage)
-    console.log(errorMessage.length)
   }
 
   function checkHighlight() {
     if (previousHighlight.current !== element.highlight) {
-      console.log("new state: ", state)
       setBorderColor('temp-border'); // set temporary border color
       setTimeout(() => {
         setBorderColor(''); // reset border color after 1 second
-      }, 500); 
+      }, 500);
       previousHighlight.current = element.highlight;
     }
   }
 
   useEffect(() => {
-    console.log("effect observer, state: ", state)
     checkHighlight()
     checkErrorMessage()
   }, [state]);
 
   return (
-    <div style={{maxWidth: "90%"}}>
+    <div style={{ maxWidth: "90%" }}>
       <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={`my-input ${borderColor}`}
- />
+      />
       <Controlled
         id="oberver"
         className="Observ"
@@ -85,11 +81,11 @@ function ObserverEditor({ element, state }) {
           lineNumbers: true,
         }}
       />
-        {(errorMessage.length > 0) && (
-        <input 
-          type="text" 
+      {(errorMessage.length > 0) && (
+        <input
+          type="text"
           value={errorMessage}
-          className={`error-message`} 
+          className={`error-message`}
         />
       )}
     </div>

@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "codemirror": "^5.65.11",
     "gojs": "^2.3.3",
+    "gojs-react": "^1.1.2",
     "p5": "^1.0.0",
     "react": "^18.2.0",
     "react-codemirror2": "^7.2.1",
