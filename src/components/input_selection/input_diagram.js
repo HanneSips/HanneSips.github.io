@@ -11,7 +11,7 @@ import { Controlled } from "react-codemirror2";
 import { ReactDiagram } from "gojs-react";
 
 
-function InputDiagram({ observables, observers, parameters, firedObservables }) {
+function InputDiagram({ observables, observers, parameters, firedObservables, changeActiveEditor }) {
   const diagramRef = useRef(null);
   const [nodeDataArray, changeNodeDataArray] = useState([])
   const [linkDataArray, changeLinkArray] = useState([]);
@@ -59,7 +59,7 @@ function InputDiagram({ observables, observers, parameters, firedObservables }) 
             margin: 2,
             click: nodeClickFunction
           },
-          $.current(go.TextBlock, "Click me!")),
+          $.current(go.TextBlock, "Editor")),
       ))
     diagram.current.nodeTemplateMap.add(name, nodeTemplate)
   }
@@ -67,6 +67,7 @@ function InputDiagram({ observables, observers, parameters, firedObservables }) 
   function nodeClickFunction(e, obj) {
     var node = obj.part;
     var data = node.data;
+    changeActiveEditor(data.name)
   }
 
   // ON OBSERVABLE EMITION
@@ -122,12 +123,9 @@ function InputDiagram({ observables, observers, parameters, firedObservables }) 
 
   // ON ELEMENT ADDITION / REMOVAL
   useEffect(() => {
-    console.log("observable new effect")
-
     // check new observables? Compare observables and prevObservables
     const newObservables = observables.filter(element => !prevObservables.current.includes(element));
     // If yes ==> add node: createNewNode(newElement)
-    console.log(newObservables)
     newObservables.forEach((observable) => createNewNode(observable))
 
     // check removed observables? 
@@ -185,6 +183,7 @@ function InputDiagram({ observables, observers, parameters, firedObservables }) 
     const node = constructNode(element);
     const newNodeDataArray = [...nodeDataArray, node];
     changeNodeDataArray(newNodeDataArray);
+    changeActiveEditor(element.name)
   }
 
   function checkNewElement(previousArray, newArray) {

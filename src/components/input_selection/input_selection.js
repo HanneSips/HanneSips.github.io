@@ -17,6 +17,7 @@ function InputSelection({
   selected, observables, observers, parameters, changeParameters,
   changeObservables, changeObservers, executeCode, firedObservables }) {
   console.log("render input")
+  const [activeEditor, changeActiveEditor] = useState()
 
   function handleRunClick() {
     executeCode()
@@ -37,8 +38,6 @@ function InputSelection({
     changeElementArrayState(newElementArray);
   }
 
-  const [editorHeight, setEditorHeight] = useState("50%");
-
   return (
     <div style={{ position: 'relative', width: "100%", height: "100%" }}>
       <div style={{ width: "100%", height: "50%" }}>
@@ -51,6 +50,7 @@ function InputSelection({
           observers={observers}
           parameters={parameters}
           firedObservables={firedObservables}
+          changeActiveEditor={changeActiveEditor}
         />
       </div>
       <Editor
@@ -59,6 +59,7 @@ function InputSelection({
         observers={observers}
         parameters={parameters}
         state={firedObservables}
+        activeEditor={activeEditor}
       />
     </div>
   );
