@@ -3,12 +3,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/search/match-highlighter";
-import { Obsvable, ObservableEditor } from "./observable_editor";
-import { Observer, ObserverEditor } from "./observer_editor";
-import { VisualParameter, VisualParameterComp } from "./visual_parameters";
 import * as go from 'gojs';
-import { Controlled } from "react-codemirror2";
-import { ReactDiagram } from "gojs-react";
 
 
 function InputDiagram({ observables, observers, parameters, firedObservables, changeActiveEditor }) {

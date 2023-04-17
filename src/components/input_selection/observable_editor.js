@@ -65,7 +65,7 @@ function ObservableEditor({ element, state }) {
   }, [state]);
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <div style={{ display: "block", width: "100%" }}>
         <input
           type="text"
@@ -74,7 +74,7 @@ function ObservableEditor({ element, state }) {
           className={`my-input ${borderColor}`}
         />
       </div>
-      <div style={{ display: "block", width: "100%" }}>
+      <div style={{ display: "block", width: "100%", height: "85%" }}>
         <Controlled
           className="Observ"
           value={code}
