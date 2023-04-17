@@ -38,7 +38,8 @@
 
 .Observ {
   display: inline-block !important ;
-  max-width: 100% !important ;/* set the max-width to your desired width */
+  height: 100% !important;
+  width: 100% !important ;/* set the max-width to your desired width */
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;

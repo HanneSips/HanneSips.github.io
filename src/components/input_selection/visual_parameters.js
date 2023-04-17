@@ -4,7 +4,8 @@ class VisualParameter {
   constructor(number) {
     this.name = `#PARAM${number}`
     this.value = 0;
-    this.category = 'parameter'
+    this.coreCategory = 'parameter'
+    this.category = this.coreCategory
   }
 
   changeName(newName) {
@@ -12,6 +13,9 @@ class VisualParameter {
   }
   changeValue(newValue) {
     this.value = parseInt(newValue);
+  }
+  changeCategory(newCategory) {
+    this.category = newCategory
   }
 }
 

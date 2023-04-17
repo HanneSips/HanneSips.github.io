@@ -17,7 +17,7 @@ const obs = {};
 const subscriptions = {}
 
 function App() {
-  const [state, forceStateChange] = useState(0); // integer state
+  const [firedObservables, newObservableFired] = useState(); // integer state
   const [visualWidth, updateVisualWidth] = useState(0);
   const [visualHeight, updateVisualHeight] = useState(0)
   const [selected, setSelected] = useState(null);
@@ -70,7 +70,7 @@ function App() {
         const obsvblFunction = new Function('rxjs', observable.code)
         obs[observable.name] = obsvblFunction(rxjs)
         subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
-          observable.newHighlight()
+          observable.emitNewValue()
         })
         observable.setErrorMessage('')
       } catch (error) {
@@ -110,11 +110,12 @@ function App() {
           if (visualParam && !(new_value === old_value)) {
             visualParam.changeValue(params[key]);
           }
-          forceStateChange(Math.random());
+          //newObservableFired(Math.random());
         }
+        newObservableFired(Math.random())
       }
     )
-    forceStateChange(Math.random());
+    newObservableFired(Math.random());
   }
 
   return (
@@ -128,7 +129,7 @@ function App() {
           changeObservables={changeObservables} changeObservers={changeObservers}
           changeParameters={changeParameters}
           executeCode={executeDynamicParams}
-          state={state}
+          firedObservables={firedObservables}
         />}
         colour='lightgray'
       />

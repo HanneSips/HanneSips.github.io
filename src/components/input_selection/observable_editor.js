@@ -13,7 +13,7 @@ class Obsvable {
       .pipe(
         rxjs.filter(event => event.code === 'ArrowUp')
         ) `
-    this.highlight = 0
+    this.emittedValues = 0
     this.errorMessage = ''
     this.category = 'observable'
     this.coreCategory = this.category
@@ -32,8 +32,8 @@ class Obsvable {
     this.category = newCategory
   }
 
-  newHighlight() {
-    this.highlight += 1
+  emitNewValue() {
+    this.emittedValues += 1
   }
 
   setErrorMessage(errorMessage) {
@@ -41,7 +41,7 @@ class Obsvable {
   }
 }
 
-function ObservableEditor({ element, state, highlightNodeFunction }) {
+function ObservableEditor({ element, state }) {
   const [code, setCode] = useState(element.code);
   const [name, setName] = useState(element.name)
   const [borderColor, setBorderColor] = useState(''); // initialize with an empty string
@@ -51,7 +51,6 @@ function ObservableEditor({ element, state, highlightNodeFunction }) {
 
   function checkHighlight() {
     if (previousHighlight.current !== element.highlight) {
-      highlightNodeFunction(element)
       previousHighlight.current = element.highlight;
     }
   }
@@ -66,29 +65,37 @@ function ObservableEditor({ element, state, highlightNodeFunction }) {
   }, [state]);
 
   return (
-    <div style={{ maxWidth: "90%" }}>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={`my-input ${borderColor}`} />
-      <Controlled
-        className="Observ"
-        value={code}
-        onBeforeChange={(editor, data, value) => {
-          element.changeCode(value);
-          setCode(value);
-        }}
-        options={{
-          mode: "javascript",
-          theme: "material",
-          lineNumbers: true,
-        }}
-      />
-      {(errorMessage.length > 0) && (
+    <div style={{ width: "100%" }}>
+      <div style={{ display: "block", width: "100%" }}>
         <input
           type="text"
-          value={errorMessage}
-          className={`error-message`}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={`my-input ${borderColor}`}
         />
+      </div>
+      <div style={{ display: "block", width: "100%" }}>
+        <Controlled
+          className="Observ"
+          value={code}
+          onBeforeChange={(editor, data, value) => {
+            element.changeCode(value);
+            setCode(value);
+          }}
+          options={{
+            mode: "javascript",
+            theme: "material",
+            lineNumbers: true,
+          }}
+        />
+      </div>
+      {errorMessage.length > 0 && (
+        <div style={{ display: "block", width: "100%" }}>
+          <input type="text" value={errorMessage} className={`error-message`} />
+        </div>
       )}
     </div>
+
   );
 }
 
