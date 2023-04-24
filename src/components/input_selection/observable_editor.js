@@ -4,12 +4,8 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
 import { render } from "@testing-library/react";
+import { UNSELECTEDFILL, NORMALBORDER } from "./layoutVars";
 
-const SELECTEDFILL = "#EEEEFF"
-const UNSELECTEDFILL = "#FFFFFF"
-const NORMALBORDER = "#777777"
-const ERRORBORDER = "#FF6666"
-const HIGHLIGHTBORDER = "#FFDD77"
 
 class Obsvable {
   constructor(number) {
@@ -110,4 +106,4 @@ function ObservableEditor({ element, state }) {
 }
 
 
-export { ObservableEditor, Obsvable, SELECTEDFILL, UNSELECTEDFILL }
+export { ObservableEditor, Obsvable }

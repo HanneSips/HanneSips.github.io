@@ -4,7 +4,8 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/search/match-highlighter";
 import * as go from 'gojs';
-import { Observer, SELECTEDFILL, UNSELECTEDFILL, ERRORBORDER, NORMALBORDER, HIGHLIGHTBORDER } from "./observer_editor";
+import { Observer } from "./observer_editor";
+import { SELECTEDFILL, UNSELECTEDFILL, ERRORBORDER, NORMALBORDER, HIGHLIGHTBORDER } from "./layoutVars";
 
 
 function InputDiagram({
@@ -32,12 +33,12 @@ function InputDiagram({
   const prevParameterValues = useRef([])
   const activeEditorRef = useRef(activeEditor)
 
-  const observableColumn = 0
-  const observerColumn = 0
-  const parameterColumn = 0
-  const observableRow = -100 //useRef("test")
-  const observerRow = 100 //useRef("test")
-  const parameterRow = 300 //useRef("test")
+  const observableColumn = useRef(0)
+  const observerColumn = useRef(0)
+  const parameterColumn = useRef(0)
+  const observableRow = -100
+  const observerRow = 100
+  const parameterRow = 300
 
   // ON FIRST RENDER
   useEffect(() => {
@@ -217,7 +218,8 @@ function InputDiagram({
     // check new observables? Compare observables and prevObservables
     const newObservables = observables.filter(element => !prevObservables.current.includes(element));
     // If yes ==> add node: createNewNode(newElement)
-    newObservables.forEach((observable) => createNewNode(observable, observableRow, observableColumn))
+    newObservables.forEach((observable) => createNewNode(observable, observableRow, observableColumn.current))
+    observableColumn.current = observableColumn.current + 60
 
     // removed observables are already removed in the diagram as this is the place where removal is initiated
 
@@ -235,7 +237,8 @@ function InputDiagram({
     // check new observers? Compare observers and prevObservers
     const newObservers = observers.filter(element => !prevObservers.current.includes(element));
     // If yes ==> add node: createNewNode(newElement)
-    newObservers.forEach((observer) => createNewNode(observer, observerRow, observerColumn))
+    newObservers.forEach((observer) => createNewNode(observer, observerRow, observerColumn.current))
+    observerColumn.current = observerColumn.current + 60
 
     // removed observers are already removed in the diagram as this is the place where removal is initiated
 
@@ -252,8 +255,10 @@ function InputDiagram({
     const newParams = parameters.filter(element => !prevParameters.current.includes(element));
     // If yes ==> add node: createNewNode(newElement)
     newParams.forEach((parameter) => {
-      createNewNode(parameter, parameterRow, parameterColumn)
+      createNewNode(parameter, parameterRow, parameterColumn.current)
     })
+    parameterColumn.current = parameterColumn.current + 60
+
 
     // removed parameters are already removed in the diagram as this is the place where removal is initiated
 

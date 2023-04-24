@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { UNSELECTEDFILL, NORMALBORDER } from "./layoutVars";
 
 class VisualParameter {
   constructor(number) {
     this.name = `#PARAM${number}`
     this.value = 0;
     this.category = 'parameter'
-    this.prevCategory = this.coreCategory
+    this.fill = UNSELECTEDFILL
+    this.border = NORMALBORDER
     this.rowNumber = number
     this.columnNumber = 1
   }

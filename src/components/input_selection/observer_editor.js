@@ -4,12 +4,8 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
 import * as rxjs_lib from 'rxjs';
+import { UNSELECTEDFILL, NORMALBORDER } from "./layoutVars";
 
-const SELECTEDFILL = "#EEEEFF"
-const UNSELECTEDFILL = "#FFFFFF"
-const NORMALBORDER = "#777777"
-const ERRORBORDER = "#FF6666"
-const HIGHLIGHTBORDER = "#FFDD77"
 
 class Observer {
   constructor(number) {
@@ -106,4 +102,4 @@ function ObserverEditor({ element, state, highlightNodeFunction }) {
   );
 }
 
-export { ObserverEditor, Observer, SELECTEDFILL, UNSELECTEDFILL, ERRORBORDER, NORMALBORDER, HIGHLIGHTBORDER }
+export { ObserverEditor, Observer }
