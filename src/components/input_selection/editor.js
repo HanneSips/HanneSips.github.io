@@ -17,7 +17,6 @@ function Editor({ observables, observers, parameters, state, activeEditor }) {
       {observers.map((element, index) => (
         <div id={element.name} className="Observ" key={element.id} style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0, zIndex: calculateZIndex(element.name) }}>
           <ObservableEditor element={element} state={state} />
-          {/* <button onClick={() => removeElementFunction(element)}>-</button> */}
         </div>
       ))}
     </div>

@@ -5,6 +5,12 @@ import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
 import * as rxjs_lib from 'rxjs';
 
+const SELECTEDFILL = "#EEEEFF"
+const UNSELECTEDFILL = "#FFFFFF"
+const NORMALBORDER = "#777777"
+const ERRORBORDER = "#FF6666"
+const HIGHLIGHTBORDER = "#FFDD77"
+
 class Observer {
   constructor(number) {
     this.name = `#OBVR${number}`
@@ -15,8 +21,16 @@ class Observer {
     this.highlight = 0
     this.errorMessage = ''
     this.category = 'observer'
+    this.rowNumber = number
+    this.columnNumber = 1
+    this.parameters = []
+    this.fill = UNSELECTEDFILL
+    this.border = NORMALBORDER
   }
 
+  changeCategory(newCategory) {
+    this.category = newCategory
+  }
 
   setCode(newCode) {
     this.code = newCode;
@@ -92,4 +106,4 @@ function ObserverEditor({ element, state, highlightNodeFunction }) {
   );
 }
 
-export { ObserverEditor, Observer }
+export { ObserverEditor, Observer, SELECTEDFILL, UNSELECTEDFILL, ERRORBORDER, NORMALBORDER, HIGHLIGHTBORDER }

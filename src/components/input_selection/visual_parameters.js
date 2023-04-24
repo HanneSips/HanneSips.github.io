@@ -4,8 +4,10 @@ class VisualParameter {
   constructor(number) {
     this.name = `#PARAM${number}`
     this.value = 0;
-    this.coreCategory = 'parameter'
-    this.category = this.coreCategory
+    this.category = 'parameter'
+    this.prevCategory = this.coreCategory
+    this.rowNumber = number
+    this.columnNumber = 1
   }
 
   changeName(newName) {

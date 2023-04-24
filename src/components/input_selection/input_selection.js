@@ -15,7 +15,7 @@ import { ReactDiagram } from "gojs-react";
 
 function InputSelection({
   selected, observables, observers, parameters, changeParameters,
-  changeObservables, changeObservers, executeCode, firedObservables }) {
+  changeObservables, changeObservers, executeCode, firedObservables, run }) {
   console.log("render input")
   const [activeEditor, changeActiveEditor] = useState()
 
@@ -49,8 +49,13 @@ function InputSelection({
           observables={observables}
           observers={observers}
           parameters={parameters}
+          changeObservables={changeObservables}
+          changeObservers={changeObservers}
+          changeParameters={changeParameters}
           firedObservables={firedObservables}
           changeActiveEditor={changeActiveEditor}
+          activeEditor={activeEditor}
+          run={run}
         />
       </div>
       <Editor

@@ -5,6 +5,12 @@ import "codemirror/mode/javascript/javascript";
 import { Controlled } from "react-codemirror2";
 import { render } from "@testing-library/react";
 
+const SELECTEDFILL = "#EEEEFF"
+const UNSELECTEDFILL = "#FFFFFF"
+const NORMALBORDER = "#777777"
+const ERRORBORDER = "#FF6666"
+const HIGHLIGHTBORDER = "#FFDD77"
+
 class Obsvable {
   constructor(number) {
     this.name = `#OBS${number}`
@@ -16,7 +22,11 @@ class Obsvable {
     this.emittedValues = 0
     this.errorMessage = ''
     this.category = 'observable'
-    this.coreCategory = this.category
+    this.rowNumber = number
+    this.columnNumber = 1
+    this.observers = []
+    this.fill = UNSELECTEDFILL
+    this.border = NORMALBORDER
   }
 
 
@@ -65,7 +75,7 @@ function ObservableEditor({ element, state }) {
   }, [state]);
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "100%", height: "100%", background: "lightgray" }}>
       <div style={{ display: "block", width: "100%" }}>
         <input
           type="text"
@@ -100,4 +110,4 @@ function ObservableEditor({ element, state }) {
 }
 
 
-export { ObservableEditor, Obsvable }
+export { ObservableEditor, Obsvable, SELECTEDFILL, UNSELECTEDFILL }

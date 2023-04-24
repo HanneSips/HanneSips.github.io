@@ -17,6 +17,7 @@ const obs = {};
 const subscriptions = {}
 
 function App() {
+  const [run, newRun] = useState(0)
   const [firedObservables, newObservableFired] = useState(); // integer state
   const [visualWidth, updateVisualWidth] = useState(0);
   const [visualHeight, updateVisualHeight] = useState(0)
@@ -56,6 +57,7 @@ function App() {
 
   function executeDynamicParams() {
     console.log("execute obs!!!")
+    console.log("observables: ", obs)
     // function that executes all the code of all observable and observer editors
     stopDynamicParams()
 
@@ -112,10 +114,12 @@ function App() {
           }
           //newObservableFired(Math.random());
         }
+        console.log("fire new observable from merged!!")
         newObservableFired(Math.random())
       }
     )
     newObservableFired(Math.random());
+    newRun(Math.random)
   }
 
   return (
@@ -130,6 +134,7 @@ function App() {
           changeParameters={changeParameters}
           executeCode={executeDynamicParams}
           firedObservables={firedObservables}
+          run={run}
         />}
         colour='lightgray'
       />
