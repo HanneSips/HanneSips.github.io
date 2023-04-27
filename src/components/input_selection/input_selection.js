@@ -16,8 +16,8 @@ import prebuildObservables from "./prebuild_observables/midiDeviceObservable";
 
 function InputSelection({
   selected, observables, observers, parameters, changeParameters,
-  changeObservables, changeObservers, executeCode, firedObservables, run }) {
-  console.log("render input")
+  changeObservables, changeObservers, executeCode, stopExecution, firedObservables, run }) {
+  //console.log("render input")
   const [activeEditor, changeActiveEditor] = useState()
   const [showPrebuiltObservables, setShowPrebuiltObservables] = useState(false);
   const [renamedElement, renameElement] = useState()
@@ -25,6 +25,10 @@ function InputSelection({
 
   function handleRunClick() {
     executeCode()
+  }
+
+  function handleStopClick() {
+    stopExecution()
   }
 
   function handleBrowseObservablesClick() {
@@ -45,7 +49,9 @@ function InputSelection({
   return (
     <div style={{ position: 'relative', width: "100%", height: "100%" }}>
       <div style={{ width: "100%", height: "50%" }}>
-        <button onClick={handleRunClick} style={{ width: "100%" }}>RUN</button>
+        <button onClick={handleRunClick} style={{ width: "66%" }}>RUN</button>
+        <button onClick={handleStopClick} style={{ width: "33%" }}>STOP</button>
+        <br></br>
         <button onClick={() => (addElement(observables, new Obsvable(observables.length), changeObservables))} style={{ width: "33%" }}>+ OBSERVABLE</button>
         <button onClick={() => (addElement(observers, new Observer(observers.length), changeObservers))} style={{ width: "33%" }}>+ OBSERVER</button>
         <button onClick={() => (addElement(parameters, new VisualParameter(parameters.length), changeParameters))} style={{ width: "33%" }}>+ PARAMETER</button>

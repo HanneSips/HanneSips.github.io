@@ -29,6 +29,7 @@ function Editor({ element, state, renameElement }) {
     <div style={{ width: "100%", height: "100%", background: "lightgray" }}>
       <div style={{ display: "block", width: "100%" }}>
         <input
+          style={{ display: "block", width: "100%" }}
           type="text"
           value={element.name}
           onChange={(e) => { console.log("rename!!"); element.changeName(e.target.value); setName(e.target.value); renameElement([element, element.name]) }}

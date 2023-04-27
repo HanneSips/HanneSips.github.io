@@ -44,7 +44,7 @@ function App() {
     setSelected(index);
   };
 
-  function stopDynamicParams() {
+  function stopExecution() {
     params = {}
     // delete observables
     for (const observable in obs) {
@@ -86,7 +86,7 @@ function App() {
     // function that executes all the code of all observable and observer editors
 
     // stop all existing observables / observers / parameters
-    stopDynamicParams()
+    stopExecution()
 
     // Create parameters
     parameters.forEach(parameter => {
@@ -114,13 +114,15 @@ function App() {
 
               resolve();
             } else {
+              console.log('reject no obs!!!')
               observable.setErrorMessage(`observable doesn't return observable: ${observableReturn}`);
-              reject();
+              resolve(`observable doesn't return observable: ${observableReturn}`);
             }
           });
         } catch (error) {
+          console.log('reject error!!!')
           observable.setErrorMessage(error.message);
-          reject();
+          resolve(error.message);
         }
       });
     });
@@ -174,10 +176,11 @@ function App() {
               }
               //newObservableFired(Math.random());
             }
-            console.log("fire new observable from merged!!")
+            //console.log("fire new observable from merged!!")
             newObservableFired(Math.random())
           }
         )
+        newObservableFired(Math.random())
       }
     }
 
@@ -198,6 +201,7 @@ function App() {
           changeObservables={changeObservables} changeObservers={changeObservers}
           changeParameters={changeParameters}
           executeCode={executeDynamicParams}
+          stopExecution={stopExecution}
           firedObservables={firedObservables}
           run={run}
         />}

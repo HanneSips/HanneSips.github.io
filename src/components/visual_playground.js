@@ -22,16 +22,16 @@ import 'codemirror/addon/fold/comment-fold';
 import 'codemirror/addon/fold/foldgutter.css';
 
 
-function VisualPlayground( { visualCode , changeVisualCode } ) {
+function VisualPlayground({ visualCode, changeVisualCode }) {
   function handleCodeChange(editor, data, value) {
     editor.showHint({ completeSingle: false });
     changeVisualCode(value)
   }
 
-  console.log("render playground")
+  //console.log("render playground")
 
   return (
-    <div id="editor" style={{ maxWidth: "100%", height: "100%"}}>
+    <div id="editor" style={{ maxWidth: "100%", height: "100%" }}>
       <Controlled
         className="CodeMirror"
         value={visualCode}
@@ -59,7 +59,7 @@ function VisualPlayground( { visualCode , changeVisualCode } ) {
           highlightSelectionMatches: {
             minChars: 2,
             showToken: /Hello/,
-            style:'matchhighlight'
+            style: 'matchhighlight'
           }
         }}
       />

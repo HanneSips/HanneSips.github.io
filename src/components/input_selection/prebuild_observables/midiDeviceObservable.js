@@ -40,14 +40,51 @@ prebuildObservables.push(keypressObservable)
 // AUDIO
 const audioObservable = new Obsvable(2)
 const audioCode = `
-    return rxjs.fromEvent(document, 'keydown')
-      .pipe(
-        // change key code here if required:
-        rxjs.filter(event => event.code === 'space')
-        ) `
-audioObservable.changeCode(keypressCode)
+const audioCtx = new AudioContext();
+const analyser = audioCtx.createAnalyser();
+const freqArray = new Float32Array(analyser.frequencyBinCount);
+
+const audioObservable = navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(stream => {
+    var source = audioCtx.createMediaStreamSource(stream);
+  	source.connect(analyser);
+
+    // Start the audio processing
+    analyser.connect(audioCtx.destination);
+  // fill the Float32Array with data returned from getFloatFrequencyData()
+  const Audioobservable = rxjs.interval(1000).pipe(rxjs.map(x => {  analyser.getFloatFrequencyData(freqArray);}))
+	console.log("audio observable", Audioobservable)
+  return Audioobservable
+  })
+return audioObservable
+     `
+audioObservable.changeCode(audioCode)
 audioObservable.changeName("audioSignal")
 
 prebuildObservables.push(audioObservable)
 
+
+// interval
+const intervalObservable = new Obsvable(3)
+const intervalCode = `
+const numbers = rxjs.interval(1000);
+ 
+return numbers
+`
+
+intervalObservable.changeCode(intervalCode)
+intervalObservable.changeName("interval")
+
+prebuildObservables.push(intervalObservable)
+
+
+
+
+
+
+
+
 export default prebuildObservables
+
+
+

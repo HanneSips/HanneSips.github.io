@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UNSELECTEDFILL, NORMALBORDER } from "./layoutVars";
+import { v4 as uuidv4 } from 'uuid';
 
 class VisualParameter {
   constructor(number) {
+    this.id = uuidv4()
     this.name = `#PARAM${number}`
     this.value = 0;
     this.category = 'parameter'

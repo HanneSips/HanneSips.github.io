@@ -296,7 +296,6 @@ function InputDiagram({
 
   // ON MODEL CHANGE ==> DIAGRAM SHOULD CHANGE
   useEffect(() => {
-    console.log("new nodeDataArray effect: ", nodeDataArray)
     // update the diagram model when nodeDataArray or linkDataArray change
     model.current.nodeDataArray = nodeDataArray
     model.current.linkDataArray = linkDataArray
@@ -304,6 +303,15 @@ function InputDiagram({
   }, [nodeDataArray, linkDataArray])
 
   function constructNode(element, elementRow, elementColumn) {
+    var valueString
+    if (element.value) {
+      try {
+        valueString = element.value.toString()
+      } catch (error) {
+        valueString = "no string repr" // parameter with value that is not representable as a string
+      }
+    } else (valueString = undefined) // no value (observable / observer)
+
     const node = {
       id: element.id,
       key: element.id,
@@ -312,7 +320,7 @@ function InputDiagram({
       element: element,
       color: element.color,
       location: new go.Point(elementRow, elementColumn),
-      value: element.value,
+      value: valueString,
       fill: element.fill,
       border: element.border
     }
@@ -385,7 +393,7 @@ function InputDiagram({
   }
 
   function constructLink(element1, element2) {
-    return { from: element1.name, to: element2.name }
+    return { from: element1.id, to: element2.id }
   }
 
   return <div ref={diagramRef} style={{ position: 'relative', top: 0, left: 0, zIndex: 1, height: "100%", width: "100%" }}>
