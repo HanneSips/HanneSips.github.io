@@ -13,8 +13,8 @@ import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 
 var params = {};
-const obs = {};
-const subscriptions = {}
+var obs = {};
+var subscriptions = {}
 
 function App() {
   const [run, newRun] = useState(0)
@@ -50,15 +50,42 @@ function App() {
     for (const observable in obs) {
       //observable.complete()
     };
+    obs = {}
+
+    console.log("subscriptions: ", subscriptions)
     for (const subscription in subscriptions) {
+      console.log("subbb: ", subscription)
       subscriptions[subscription].unsubscribe()
     }
+    subscriptions = {}
+  }
+
+  function connectObsvblsToObsvrs() {
+    observables.forEach(observable => {
+      observable.observers = []
+      observers.forEach(observer => {
+        if (observer.code.includes(observable.name)) {
+          observable.observers = [...observable.observers, observer]
+        }
+      })
+    })
+  }
+
+  function connectObsvrsToParams() {
+    observers.forEach(observer => {
+      observer.parameters = []
+      parameters.forEach(parameter => {
+        if (observer.code.includes(parameter.name)) {
+          observer.parameters = [...observer.parameters, parameter]
+        }
+      })
+    })
   }
 
   function executeDynamicParams() {
-    console.log("execute obs!!!")
-    console.log("observables: ", obs)
     // function that executes all the code of all observable and observer editors
+
+    // stop all existing observables / observers / parameters
     stopDynamicParams()
 
     // Create parameters
@@ -66,60 +93,98 @@ function App() {
       params[parameter.name] = parameter.value
     })
 
-    // Create observables
-    observables.forEach(observable => {
-      try {
-        const obsvblFunction = new Function('rxjs', observable.code)
-        obs[observable.name] = obsvblFunction(rxjs)
-        subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
-          observable.emitNewValue()
-        })
-        observable.setErrorMessage('')
-      } catch (error) {
-        observable.setErrorMessage(error.message)
-      }
-    });
 
+    // detect and store links 
+    connectObsvblsToObsvrs()
+    connectObsvrsToParams()
 
-    // Create observers
-    observers.forEach(observer => {
-      try {
-        const functionCode = `${observer.code}; `
-        const obsrvrFunction = new Function('obs', 'params', functionCode)
-        subscriptions[observer.name] = obsrvrFunction(obs, params)
-        observer.setErrorMessage('')
-      } catch (error) {
-        console.log("error!!!")
-        observer.setErrorMessage(error.message)
-      }
+    // Create observables in async way
+    const observablePromises = observables.map(observable => {
+      return new Promise((resolve, reject) => {
+        try {
+          const obsvblFunction = new Function('rxjs', `return (async function () { ${observable.code} })();`);
+          const observableReturn = obsvblFunction(rxjs).then((observableReturn) => {
+            if (observableReturn instanceof rxjs.Observable) {
+              obs[observable.name] = observableReturn;
+              // add for each observable a subscription to higher emittedvalue number
+              subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
+                observable.emitNewValue()
+              })
+              observable.setErrorMessage('')
 
-    });
-
-    /// for any observable that fires a new element, I want to reload all the parameters that changed value
-    // Use Object.values to convert the dictionary into an array of observables
-    const obsvblsList = Object.values(obs);
-
-    // Use merge to merge all the observables into a single observable
-    const mergedObsvbls = rxjs.merge(...obsvblsList);
-    obs['mergedObservable'] = mergedObsvbls
-    subscriptions["inputPassing"] = mergedObsvbls.subscribe(
-      () => {
-        // Update parameter values
-        for (const key in params) {
-          const visualParam = parameters.find(vp => vp.name === key)
-          const old_value = visualParam.value
-          const new_value = params[key]
-          if (visualParam && !(new_value === old_value)) {
-            visualParam.changeValue(params[key]);
-          }
-          //newObservableFired(Math.random());
+              resolve();
+            } else {
+              observable.setErrorMessage(`observable doesn't return observable: ${observableReturn}`);
+              reject();
+            }
+          });
+        } catch (error) {
+          observable.setErrorMessage(error.message);
+          reject();
         }
-        console.log("fire new observable from merged!!")
-        newObservableFired(Math.random())
+      });
+    });
+
+    // wait until all obs returned a value (async)
+    Promise.all(observablePromises).then(() => {
+      createObservers()
+      makeMergedObserver()
+      handleStateChanges()
+    }).catch((error) => {
+      console.log("One or more observables failed:", error);
+    });
+
+    function createObservers() {
+      // Create observers
+      observers.forEach(observer => {
+        try {
+          const functionCode = `${observer.code}; `
+          const obsrvrFunction = new Function('obs', 'params', functionCode)
+          subscriptions[observer.name] = obsrvrFunction(obs, params)
+          observer.setErrorMessage('')
+        } catch (error) {
+          console.log("error!!!")
+          observer.setErrorMessage(error.message)
+        }
+      });
+    }
+
+
+    function makeMergedObserver() {
+      /// for any observable that fires a new element, I want to reload all the parameters that changed value
+      // Use Object.values to convert the dictionary into an array of observables
+      const obsvblsList = Object.values(obs);
+      console.log(obsvblsList)
+
+      // Use merge to merge all the observables into a single observable
+      var mergedObsvbls
+      if (obsvblsList.length > 0) {
+        mergedObsvbls = rxjs.merge(...obsvblsList);
+
+        obs['mergedObservable'] = mergedObsvbls
+        subscriptions["inputPassing"] = mergedObsvbls.subscribe(
+          () => {
+            // Update parameter values
+            for (const key in params) {
+              const visualParam = parameters.find(vp => vp.name === key)
+              const old_value = visualParam.value
+              const new_value = params[key]
+              if (visualParam && !(new_value === old_value)) {
+                visualParam.changeValue(params[key]);
+              }
+              //newObservableFired(Math.random());
+            }
+            console.log("fire new observable from merged!!")
+            newObservableFired(Math.random())
+          }
+        )
       }
-    )
-    newObservableFired(Math.random());
-    newRun(Math.random)
+    }
+
+    function handleStateChanges() {
+      newObservableFired(Math.random());
+      newRun(Math.random)
+    }
   }
 
   return (
@@ -196,3 +261,5 @@ const VisualMemoize = memo(Visual)
 
 
 export default App;
+
+// difficulty: async observable / observer functions make the sequence of executing the code more difficult

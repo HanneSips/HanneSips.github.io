@@ -4,7 +4,7 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/search/match-highlighter";
 import * as go from 'gojs';
-import { Observer } from "./observer_editor";
+import { Observer } from "./observer";
 import { SELECTEDFILL, UNSELECTEDFILL, ERRORBORDER, NORMALBORDER, HIGHLIGHTBORDER } from "./layoutVars";
 
 
@@ -18,7 +18,8 @@ function InputDiagram({
   firedObservables,
   changeActiveEditor,
   activeEditor,
-  run
+  run,
+  renamedElement
 }) {
   const diagramRef = useRef(null);
   const [nodeDataArray, changeNodeDataArray] = useState([])
@@ -51,6 +52,16 @@ function InputDiagram({
       });
       removeNodes(removedNodes);
     });
+    diagram.current.addDiagramListener("TextEdited", e => {
+      const editedTextBlock = e.subject;
+      const newEditText = editedTextBlock.text;
+      const nodeData = editedTextBlock.part.data;
+      nodeData.element.changeName(newEditText)
+
+      // Needed?? diagram.current.model.setDataProperty(data, "name", newValue);
+      //changeParameterName(textBlock.data.element, newValue)
+    })
+
     $.current = go.GraphObject.make
     // define a grid layout with 3 columns
     /*     diagram.current.layout = $.current(go.LayeredDigraphLayout, {
@@ -68,21 +79,14 @@ function InputDiagram({
     // error node
   }, [])
 
-  function removeNodes(removedNodesArray) {
-    console.log("old arrays: ", prevObservables.current, prevObservers.current, prevParameters.current)
-
-    removedNodesArray.forEach(removedNode => {
-      if (removedNode.category === "observable") {
-        console.log("filtered array: ", prevObservables.current.filter(observable => observable.name !== removedNode.name))
-        changeObservables(prevObservables.current.filter(observable => observable.name !== removedNode.name))
-      } else if (removedNode.category === "observer") {
-        changeObservers(prevObservers.current.filter(observer => observer.name !== removedNode.name))
-      } else if (removedNode.category === "parameter") {
-        changeParameters(prevParameters.current.filter(parameter => parameter.name !== removedNode.name))
-      }
-    })
-
-  }
+  // when name is changed in editor, the name should also be changed in diagram
+  useEffect(() => {
+    if (renamedElement) {
+      console.log("element renamed", renamedElement)
+      const newNodeDataArray = calculateNewNodeDataArray(nodeDataArray, renamedElement[0])
+      changeNodeDataArray(newNodeDataArray)
+    }
+  }, [renamedElement])
 
   function createEditorNodeTemplate(name) {
     const nodeTemplate =
@@ -127,11 +131,16 @@ function InputDiagram({
               isMultiline: false, width: 80, height: 25, textAlign: "center"
             },
             new go.Binding("text", "name").makeTwoWay()),
+          new go.Binding("element", "element"),
           $.current(go.TextBlock,
             new go.Binding("text", "value")
           )
         ));
     diagram.current.nodeTemplateMap.add(name, nodeTemplate)
+  }
+
+  function changeParameterName(element, newValue) {
+    element.changeName(newValue)
   }
 
   function nodeClickFunction(e, obj) {
@@ -143,17 +152,19 @@ function InputDiagram({
   }
 
   function setNewActiveEditor(element, prevNodeDataArray) {
+    console.log("set editor!", element)
     var newNodeDataArray = prevNodeDataArray
     // prev active editor out
-    const prevActiveEditor = prevNodeDataArray.find(node => (node.name === activeEditorRef.current))
+    const prevActiveEditor = prevNodeDataArray.find(node => (node.id === activeEditorRef.current))
+    console.log("found active editor:", prevActiveEditor)
     if (prevActiveEditor) {
       prevActiveEditor.element.fill = UNSELECTEDFILL
       newNodeDataArray = calculateNewNodeDataArray(newNodeDataArray, prevActiveEditor.element)
     }
 
     // new active editor in
-    changeActiveEditor(element.name)
-    activeEditorRef.current = element.name
+    changeActiveEditor(element.id)
+    activeEditorRef.current = element.id
     element.fill = SELECTEDFILL
 
     newNodeDataArray = calculateNewNodeDataArray(newNodeDataArray, element)
@@ -228,7 +239,6 @@ function InputDiagram({
     prevEmittedValuesArray.current = observables.map(observable => {
       return observable.emittedValues
     });
-    console.log("newest observables array: ", observables, prevObservables.current)
   }, [observables])
 
   useEffect(() => {
@@ -243,9 +253,6 @@ function InputDiagram({
     // removed observers are already removed in the diagram as this is the place where removal is initiated
 
     prevObservers.current = observers
-
-    console.log("newest observers array: ", observers, prevObservers.current)
-
   }, [observers])
 
   useEffect(() => {
@@ -263,12 +270,9 @@ function InputDiagram({
     // removed parameters are already removed in the diagram as this is the place where removal is initiated
 
     prevParameters.current = parameters
-
-    console.log("newest parameters array: ", parameters, prevParameters.current)
   }, [parameters])
 
   function createNewNode(element, elementRow, elementColumn) {
-    console.log("create node with location: ", elementRow, elementColumn)
     const node = constructNode(element, elementRow, elementColumn);
     var newNodeDataArray = [...nodeDataArray, node];
     if (element.coreCategory !== "parameter") {
@@ -276,6 +280,18 @@ function InputDiagram({
     }
 
     changeNodeDataArray(newNodeDataArray);
+  }
+
+  function removeNodes(removedNodesArray) {
+    removedNodesArray.forEach(removedNode => {
+      if (removedNode.category === "observable") {
+        changeObservables(prevObservables.current.filter(observable => observable.id !== removedNode.id))
+      } else if (removedNode.category === "observer") {
+        changeObservers(prevObservers.current.filter(observer => observer.id !== removedNode.id))
+      } else if (removedNode.category === "parameter") {
+        changeParameters(prevParameters.current.filter(parameter => parameter.id !== removedNode.id))
+      }
+    })
   }
 
   // ON MODEL CHANGE ==> DIAGRAM SHOULD CHANGE
@@ -289,7 +305,8 @@ function InputDiagram({
 
   function constructNode(element, elementRow, elementColumn) {
     const node = {
-      key: element.name,
+      id: element.id,
+      key: element.id,
       name: element.name,
       category: element.category,
       element: element,
@@ -304,10 +321,11 @@ function InputDiagram({
   }
 
   function calculateNewNodeDataArray(prevNodeDataArray, element) {
-    const elementNodeIndex = prevNodeDataArray.findIndex(node => node.name === element.name);
+    const elementNodeIndex = prevNodeDataArray.findIndex(node => node.id === element.id);
     const nodeToUpdate = prevNodeDataArray[elementNodeIndex]
     const newNodeDataArray = [...prevNodeDataArray]
     if (elementNodeIndex !== -1) {
+      nodeToUpdate.name = element.name
       nodeToUpdate.category = element.category
       nodeToUpdate.value = element.value
       nodeToUpdate.fill = element.fill
@@ -343,13 +361,9 @@ function InputDiagram({
   function connectObsvblsToObsvrs() {
     var links = []
     observables.forEach(observable => {
-      observable.observers = []
-      observers.forEach(observer => {
-        if (observer.code.includes(observable.name)) {
-          observable.observers = [...observable.observers, observer]
-          const link = createNewLink(observable, observer)
-          links = [...links, link]
-        }
+      observable.observers.forEach(observer => {
+        const link = createNewLink(observable, observer)
+        links = [...links, link]
       })
     })
     return links
@@ -358,13 +372,9 @@ function InputDiagram({
   function connectObsvrsToParams() {
     var links = []
     observers.forEach(observer => {
-      observer.parameters = []
-      parameters.forEach(parameter => {
-        if (observer.code.includes(parameter.name)) {
-          observer.parameters = [...observer.parameters, parameter]
-          const link = createNewLink(observer, parameter)
-          links = [...links, link]
-        }
+      observer.parameters.forEach(parameter => {
+        const link = createNewLink(observer, parameter)
+        links = [...links, link]
       })
     })
     return links
