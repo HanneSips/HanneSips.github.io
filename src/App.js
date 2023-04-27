@@ -11,6 +11,10 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
+import { saveAs } from 'file-saver';
+import JSZip from 'jszip';
+
+
 
 var params = {};
 var obs = {};
@@ -22,27 +26,31 @@ function App() {
   const [visualWidth, updateVisualWidth] = useState(0);
   const [visualHeight, updateVisualHeight] = useState(0)
   const [selected, setSelected] = useState(null);
+  const [topIsHovered, setTopIsHovered] = useState(false);
   const [observables, changeObservables] = useState([])
   const [observers, changeObservers] = useState([])
   const [parameters, changeParameters] = useState([])
   const [visualCode, changeVisualCode] = useState(`
-  var colour = 200
-  p.draw = () => {
-  	const b_colour = colour % 256
-	  const c_colour = 256 - colour % 256
+  // Variables
 
-    p.background(b_colour);
-    colour = colour + 1;
-  	p.translate(canvas.width / 2, canvas.height / 2);
-	  p.fill(c_colour)
-	  p.noStoke
-    p.circle(0, 0, params["#PARAM0"])
+
+  // DRAW FUNCTION
+  p.draw = () => {
+    p.background("rgb(0,0,0)")  
   };
   `);
 
   const handleClick = (index) => {
     setSelected(index);
   };
+
+  function handleMouseEnter() {
+    setTopIsHovered(true);
+  }
+
+  function handleMouseLeave() {
+    setTopIsHovered(false);
+  }
 
   function stopExecution() {
     params = {}
@@ -190,37 +198,97 @@ function App() {
     }
   }
 
+  const handleClickSave = async () => {
+    const zip = new JSZip();
+
+    // Create subfolders
+    const observablesFolder = zip.folder('observables');
+    const observersFolder = zip.folder('observers');
+    const parametersFolder = zip.folder('parameters');
+
+    // Create empty files
+    observables.forEach((observable) => {
+      observablesFolder.file(`${observable.name}_${observable.id}.txt`, observable.code);
+    })
+
+    observers.forEach((observer) => {
+      observersFolder.file(`${observer.name}_${observer.id}.txt`, observer.code);
+    })
+
+    parameters.forEach((parameter) => {
+      parametersFolder.file(`${parameter.name}_${parameter.id}.txt`, parameter.value);
+    })
+
+    zip.file('visualCode.txt', visualCode);
+
+    // Generate the ZIP file
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+    // Save the ZIP file to the user's file system
+    saveAs(zipBlob, 'visual.zip');
+  };
+
+  const handleClickUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.webkitdirectory = true;
+    const reader = new FileReader();
+
+    input.onchange = (event) => {
+      const fileList = event.target.files;
+      fileList.forEach(file => {
+        const subfolder = file.webkitRelativePath.split('/')[1]
+        if (subfolder === "observables") {
+          console.log("observable creation")
+        } else if (subfolder === "observers") {
+          console.log("observer creation")
+        } else if (subfolder === "parameters") {
+          console.log("parameter creation")
+        }
+      })
+      console.log(event.target)
+      // do something with the selected file(s) or directory
+    };
+
+    input.click();
+  };
+
   return (
-    <div style={{ display: 'flex', height: '100vh', flexDirection: 'row', padding: '5px' }}>
-      <Column
-        isSelected={selected === 0}
-        onClick={() => handleClick(0)}
-        content={<InputSelection
-          selected={selected === 0}
-          observables={observables} observers={observers} parameters={parameters}
-          changeObservables={changeObservables} changeObservers={changeObservers}
-          changeParameters={changeParameters}
-          executeCode={executeDynamicParams}
-          stopExecution={stopExecution}
-          firedObservables={firedObservables}
-          run={run}
-        />}
-        colour='lightgray'
-      />
-      <Column
-        isSelected={selected === 1}
-        onClick={() => handleClick(1)}
-        content={<VisualPlayground visualCode={visualCode} changeVisualCode={changeVisualCode} />}
-        colour='gray'
-      />
-      <Column
-        isSelected={selected === 2}
-        onClick={() => handleClick(2)}
-        content={<MemoizedOutput selected={selected === 2}
-          updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight} />}
-        colour='lightgray'
-      />
-      <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} />
+    <div>
+      <button style={{ width: '50%', background: "white" }} onClick={handleClickSave}>Save Visual</button>
+      <button style={{ width: '50%', background: "white" }} onClick={handleClickUpload}>Upload Visual</button>
+
+      <div style={{ display: 'flex', height: '100vh', flexDirection: 'row', padding: '5px' }}>
+        <Column
+          isSelected={selected === 0}
+          onClick={() => handleClick(0)}
+          content={<InputSelection
+            selected={selected === 0}
+            observables={observables} observers={observers} parameters={parameters}
+            changeObservables={changeObservables} changeObservers={changeObservers}
+            changeParameters={changeParameters}
+            executeCode={executeDynamicParams}
+            stopExecution={stopExecution}
+            firedObservables={firedObservables}
+            run={run}
+          />}
+          colour='lightgray'
+        />
+        <Column
+          isSelected={selected === 1}
+          onClick={() => handleClick(1)}
+          content={<VisualPlayground visualCode={visualCode} changeVisualCode={changeVisualCode} />}
+          colour='gray'
+        />
+        <Column
+          isSelected={selected === 2}
+          onClick={() => handleClick(2)}
+          content={<MemoizedOutput selected={selected === 2}
+            updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight} />}
+          colour='lightgray'
+        />
+        <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} />
+      </div>
     </div>
   );
 };
@@ -252,7 +320,7 @@ function Visual({ visualCode, visualWidth, visualHeight }) {
     try {
       eval(visualCode)
     } catch (error) {
-      console.log("error")
+      console.log("error running visual", error)
     }
   };
   return <div>
