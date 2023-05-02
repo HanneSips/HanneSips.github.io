@@ -3,10 +3,16 @@ import { UNSELECTEDFILL, NORMALBORDER } from "./layoutVars";
 import { v4 as uuidv4 } from 'uuid';
 
 class VisualParameter {
-  constructor(number) {
+  constructor(number, name = undefined, value = undefined) {
     this.id = uuidv4()
-    this.name = `#PARAM${number}`
-    this.value = 0;
+    if (name) {
+      this.name = name
+    } else this.name = `#PARAM${number}`
+
+    if (value) {
+      this.value = value
+    } else this.value = 0
+
     this.category = 'parameter'
     this.fill = UNSELECTEDFILL
     this.border = NORMALBORDER

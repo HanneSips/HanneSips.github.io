@@ -28,7 +28,7 @@ function VisualPlayground({ visualCode, changeVisualCode }) {
     changeVisualCode(value)
   }
 
-  //console.log("render playground")
+  console.log("render playground", visualCode)
 
   return (
     <div id="editor" style={{ maxWidth: "100%", height: "100%" }}>

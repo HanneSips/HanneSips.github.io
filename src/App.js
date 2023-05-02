@@ -13,6 +13,9 @@ import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
+import { Obsvable } from './components/input_selection/observable';
+import { Observer } from './components/input_selection/observer';
+import { VisualParameter } from './components/input_selection/visual_parameters';
 
 
 
@@ -22,6 +25,7 @@ var subscriptions = {}
 
 function App() {
   const [run, newRun] = useState(0)
+  const [upload, triggerUpload] = useState(0)
   const [firedObservables, newObservableFired] = useState(); // integer state
   const [visualWidth, updateVisualWidth] = useState(0);
   const [visualHeight, updateVisualHeight] = useState(0)
@@ -45,6 +49,7 @@ function App() {
   };
 
   function handleMouseEnter() {
+    console.log("mouseenter")
     setTopIsHovered(true);
   }
 
@@ -232,32 +237,85 @@ function App() {
     const input = document.createElement('input');
     input.type = 'file';
     input.webkitdirectory = true;
-    const reader = new FileReader();
+
+    function readFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const contents = event.target.result;
+          resolve(contents);
+        };
+        reader.onerror = function (event) {
+          reject(event.target.error);
+        };
+        reader.readAsText(file);
+      });
+    }
 
     input.onchange = (event) => {
       const fileList = event.target.files;
-      fileList.forEach(file => {
-        const subfolder = file.webkitRelativePath.split('/')[1]
-        if (subfolder === "observables") {
-          console.log("observable creation")
+      var newObservables = [];
+      var newObservers = [];
+      var newParameters = [];
+      const readFilePromises = Array.from(fileList).map(file => {
+        const subfolder = file.webkitRelativePath.split('/')[1];
+        if (subfolder === "visualCode.txt") {
+          return readFile(file).then(contents => {
+            const visualCode = contents;
+            console.log("new visual code", visualCode);
+            // set visualCode equal to txt
+            changeVisualCode(visualCode);
+          });
+        } else if (subfolder === "observables") {
+          return readFile(file).then(contents => {
+            const obs_name = ("file:", file.name.split('_')[0]);
+            const obs_code = contents;
+            console.log(obs_name, obs_code);
+            newObservables.push(new Obsvable(0, obs_name, obs_code));
+          });
         } else if (subfolder === "observers") {
-          console.log("observer creation")
+          return readFile(file).then(contents => {
+            const obvr_name = ("file:", file.name.split('_')[0]);
+            const obvr_code = contents;
+            console.log(obvr_name, obvr_code);
+            newObservers.push(new Obsvable(0, obvr_name, obvr_code));
+          });
         } else if (subfolder === "parameters") {
-          console.log("parameter creation")
+          return readFile(file).then(contents => {
+            const par_name = ("file:", file.name.split('_')[0]);
+            const par_value = contents;
+            newParameters.push(new VisualParameter(0, par_name, par_value));
+          });
         }
-      })
-      console.log(event.target)
-      // do something with the selected file(s) or directory
+      });
+
+      Promise.all(readFilePromises).then(() => {
+        changeObservables(newObservables);
+        changeObservers(newObservers);
+        changeParameters(newParameters);
+      });
     };
 
     input.click();
+    triggerUpload(Math.random())
   };
+
 
   return (
     <div>
-      <button style={{ width: '50%', background: "white" }} onClick={handleClickSave}>Save Visual</button>
-      <button style={{ width: '50%', background: "white" }} onClick={handleClickUpload}>Upload Visual</button>
-
+      <div onMouseEnter={handleMouseEnter} style={{
+        height: '10px'
+      }} >
+        {/* content of top section */}
+      </div>
+      {
+        topIsHovered && (
+          <div onMouseLeave={handleMouseLeave}>
+            <button style={{ position: "relative", zIndex: 1, width: '50%', background: "white" }} onClick={handleClickSave}>Save Visual</button>
+            <button style={{ position: "relative", zIndex: 1, width: '50%', background: "white" }} onClick={handleClickUpload}>Upload Visual</button>
+          </div>
+        )
+      }
       <div style={{ display: 'flex', height: '100vh', flexDirection: 'row', padding: '5px' }}>
         <Column
           isSelected={selected === 0}
@@ -271,6 +329,7 @@ function App() {
             stopExecution={stopExecution}
             firedObservables={firedObservables}
             run={run}
+            upload={upload}
           />}
           colour='lightgray'
         />
@@ -289,7 +348,7 @@ function App() {
         />
         <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} />
       </div>
-    </div>
+    </div >
   );
 };
 

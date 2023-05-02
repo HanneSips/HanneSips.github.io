@@ -9,13 +9,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 class Observer {
-  constructor(number) {
+  constructor(number, name = undefined, code = undefined) {
     this.id = uuidv4()
-    this.name = `#OBVR${number}`
-    this.code = `//Observer
-    return  obs["#OBS0"].subscribe(
-      () => {params["#PARAM0"] = params["#PARAM0"] + 10; }  
-    )    `;
+
+    if (name) {
+      this.name = name
+    } else this.name = `#OBSVR${number}`
+
+    if (code) {
+      this.code = code
+    } else this.code = `
+    return obs["#OBS0"].subscribe(
+      () => { params["#PARAM0"] = params["#PARAM0"] + 10; }
+    )`;
     this.highlight = 0
     this.errorMessage = ''
     this.category = 'observer'

@@ -6,14 +6,21 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 class Obsvable {
-  constructor(number) {
+  constructor(number, name = undefined, code = undefined) {
     this.id = uuidv4()
-    this.name = `#OBS${number}`
-    this.code = `//Observable
+
+    if (name) {
+      this.name = name
+    } else this.name = `#OBS${number}`
+
+    if (code) {
+      this.code = code
+    } else this.code = `//Observable
     return rxjs.fromEvent(document, 'keydown')
       .pipe(
         rxjs.filter(event => event.code === 'ArrowUp')
         ) `
+
     this.emittedValues = 0
     this.errorMessage = ''
     this.category = 'observable'

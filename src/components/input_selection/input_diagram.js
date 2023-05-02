@@ -19,6 +19,7 @@ function InputDiagram({
   changeActiveEditor,
   activeEditor,
   run,
+  upload,
   renamedElement
 }) {
   const diagramRef = useRef(null);
@@ -50,7 +51,7 @@ function InputDiagram({
       e.subject.each(part => {
         removedNodes.push(part.data);
       });
-      removeNodes(removedNodes);
+      removeNodesInDiagram(removedNodes);
     });
     diagram.current.addDiagramListener("TextEdited", e => {
       const editedTextBlock = e.subject;
@@ -63,20 +64,11 @@ function InputDiagram({
     })
 
     $.current = go.GraphObject.make
-    // define a grid layout with 3 columns
-    /*     diagram.current.layout = $.current(go.LayeredDigraphLayout, {
-          layerSpacing: 50,
-          columnSpacing: 20
-        }); */
     diagram.current.div = diagramRef.current;
 
     createEditorNodeTemplate("observable")
     createEditorNodeTemplate("observer")
     createParNodeTemplate("parameter")
-
-
-    // selected node
-    // error node
   }, [])
 
   // when name is changed in editor, the name should also be changed in diagram
@@ -171,6 +163,14 @@ function InputDiagram({
     return newNodeDataArray
   }
 
+  /*   // ON VISUAL UPLOAD
+    useEffect(() => {
+      createNodes(observables)
+      createNodes(observers)
+      createNodes(parameters)
+      createLinks()
+    }, [upload]) */
+
   // ON OBSERVABLE EMITION
   useEffect(() => {
     // highlight observable / observer / parameter flows that fired 
@@ -232,8 +232,6 @@ function InputDiagram({
     newObservables.forEach((observable) => createNewNode(observable, observableRow, observableColumn.current))
     observableColumn.current = observableColumn.current + 60
 
-    // removed observables are already removed in the diagram as this is the place where removal is initiated
-
     prevObservables.current = observables
     // update observable emittedvalues array
     prevEmittedValuesArray.current = observables.map(observable => {
@@ -249,8 +247,6 @@ function InputDiagram({
     // If yes ==> add node: createNewNode(newElement)
     newObservers.forEach((observer) => createNewNode(observer, observerRow, observerColumn.current))
     observerColumn.current = observerColumn.current + 60
-
-    // removed observers are already removed in the diagram as this is the place where removal is initiated
 
     prevObservers.current = observers
   }, [observers])
@@ -282,7 +278,7 @@ function InputDiagram({
     changeNodeDataArray(newNodeDataArray);
   }
 
-  function removeNodes(removedNodesArray) {
+  function removeNodesInDiagram(removedNodesArray) {
     removedNodesArray.forEach(removedNode => {
       if (removedNode.category === "observable") {
         changeObservables(prevObservables.current.filter(observable => observable.id !== removedNode.id))
@@ -344,12 +340,16 @@ function InputDiagram({
   }
 
   // ON RUN OF INPUTS: 
-  useEffect(() => {
+  function createLinks() {
     // connect nodes
     const linkArray1 = connectObsvblsToObsvrs()
     const linkArray2 = connectObsvrsToParams()
     const newLinkDataArray = linkArray1.concat(linkArray2)
     changeLinkArray(newLinkDataArray);
+  }
+
+  useEffect(() => {
+    createLinks()
 
     // make failing nodes red
     var newNodeDataArray = nodeDataArray
