@@ -1,7 +1,6 @@
 import React, { useState, memo, useRef, useEffect } from 'react';
 import * as rxjs from 'rxjs';
-import { ReactP5Wrapper as Sketch } from "react-p5-wrapper";
-import VisualPlayground from './components/visual_playground'
+import { VisualPlayground } from './components/visual_playground'
 import InputSelection from './components/input_selection/input_selection'
 import { Output, MemoizedOutput } from './components/output'
 import { Controlled } from "react-codemirror2";
@@ -18,7 +17,6 @@ import { Observer } from './components/input_selection/observer';
 import { VisualParameter } from './components/input_selection/visual_parameters';
 
 
-
 var params = {};
 var obs = {};
 var subscriptions = {}
@@ -26,6 +24,8 @@ var subscriptions = {}
 function App() {
   const [run, newRun] = useState(0)
   const [upload, triggerUpload] = useState(0)
+  const [showModal, setShowModal] = useState(false);
+  const [zipName, setZipName] = useState('');
   const [firedObservables, newObservableFired] = useState(); // integer state
   const [visualWidth, updateVisualWidth] = useState(0);
   const [visualHeight, updateVisualHeight] = useState(0)
@@ -229,12 +229,18 @@ function App() {
     // Generate the ZIP file
     const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-    // Save the ZIP file to the user's file system
-    saveAs(zipBlob, 'visual.zip');
+    // Save the ZIP file with the specified name
+    saveAs(zipBlob, `${zipName || 'visual'}.zip`);
+
+    // Close the modal
+    setShowModal(false);
   };
 
   const handleClickUpload = () => {
+    console.log("upload!")
     const input = document.createElement('input');
+    //document.getElementById('fileuploadcontainer').appendChild(input);
+
     input.type = 'file';
     input.webkitdirectory = true;
 
@@ -253,6 +259,7 @@ function App() {
     }
 
     input.onchange = (event) => {
+      console.log("input !!")
       const fileList = event.target.files;
       var newObservables = [];
       var newObservers = [];
@@ -269,22 +276,25 @@ function App() {
         } else if (subfolder === "observables") {
           return readFile(file).then(contents => {
             const obs_name = ("file:", file.name.split('_')[0]);
+            const obs_id = ("file:", file.name.split('_')[1]);
             const obs_code = contents;
             console.log(obs_name, obs_code);
-            newObservables.push(new Obsvable(0, obs_name, obs_code));
+            newObservables.push(new Obsvable(0, obs_name, obs_code, obs_id));
           });
         } else if (subfolder === "observers") {
           return readFile(file).then(contents => {
             const obvr_name = ("file:", file.name.split('_')[0]);
+            const obvr_id = ("file:", file.name.split('_')[0]);
             const obvr_code = contents;
             console.log(obvr_name, obvr_code);
-            newObservers.push(new Obsvable(0, obvr_name, obvr_code));
+            newObservers.push(new Obsvable(0, obvr_name, obvr_code, obvr_id));
           });
         } else if (subfolder === "parameters") {
           return readFile(file).then(contents => {
             const par_name = ("file:", file.name.split('_')[0]);
+            const par_id = ("file:", file.name.split('_')[1]);
             const par_value = contents;
-            newParameters.push(new VisualParameter(0, par_name, par_value));
+            newParameters.push(new VisualParameter(0, par_name, par_value, par_id));
           });
         }
       });
@@ -303,19 +313,41 @@ function App() {
 
   return (
     <div>
-      <div onMouseEnter={handleMouseEnter} style={{
-        height: '10px'
+      <div id="fileuploadcontainer" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} style={{
+        minHeight: '10px'
       }} >
         {/* content of top section */}
-      </div>
-      {
-        topIsHovered && (
-          <div onMouseLeave={handleMouseLeave}>
-            <button style={{ position: "relative", zIndex: 1, width: '50%', background: "white" }} onClick={handleClickSave}>Save Visual</button>
-            <button style={{ position: "relative", zIndex: 1, width: '50%', background: "white" }} onClick={handleClickUpload}>Upload Visual</button>
+        {
+          topIsHovered && (
+            <div>
+              <button style={{ position: "relative", zIndex: 1, width: '50%', background: "white" }} onClick={() => setShowModal(true)}>Save Visual</button>
+              <button style={{ position: "relative", zIndex: 1, width: '50%', background: "white" }} onClick={handleClickUpload}>Upload Visual</button>
+            </div>
+          )
+        }
+
+        {/* Modal dialog */}
+        {topIsHovered && showModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close" onClick={() => setShowModal(false)}>
+                &times;
+              </span>
+              <label htmlFor="zipName">           Enter ZIP file name...           </label>
+              <input
+                type="text"
+                id="zipName"
+                placeholder="visual"
+                value={zipName}
+                onChange={(e) => setZipName(e.target.value)}
+              />
+              <button onClick={handleClickSave}>Save ZIP</button>
+            </div>
           </div>
-        )
-      }
+        )}
+
+      </div>
+
       <div style={{ display: 'flex', height: '100vh', flexDirection: 'row', padding: '5px' }}>
         <Column
           isSelected={selected === 0}
@@ -343,10 +375,10 @@ function App() {
           isSelected={selected === 2}
           onClick={() => handleClick(2)}
           content={<MemoizedOutput selected={selected === 2}
-            updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight} />}
+            updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight}
+            visualWidth={visualWidth} visualHeight={visualHeight} visualCode={visualCode} />}
           colour='lightgray'
         />
-        <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} />
       </div>
     </div >
   );
@@ -355,39 +387,12 @@ function App() {
 
 const Column = ({ isSelected, onClick, content, colour }) => (
   <div style={{
-    flex: isSelected ? 8 : 1, background: colour,
+    flex: isSelected ? 8 : 1, background: colour, overflow: "hidden",
     width: "100%", height: "100%", padding: '5px'
   }} onClick={onClick}>
     {content}
   </div>
 );
-
-
-// Difficulty: I wanted the input parameters to update constantly, to be up to date with every event,
-// while the output I want to run smoothly, and not rerender constantly. For that I needed to use Memo
-function Visual({ visualCode, visualWidth, visualHeight }) {
-  const sketch = (p) => {
-    function start_canvas() {
-      const canvas = p.createCanvas(visualWidth, visualHeight);
-      canvas.parent("output-canvas");
-      return canvas
-    }
-    var canvas
-    p.setup = () => {
-      canvas = start_canvas()
-    };
-    try {
-      eval(visualCode)
-    } catch (error) {
-      console.log("error running visual", error)
-    }
-  };
-  return <div>
-    <Sketch sketch={sketch} />
-  </div>
-}
-
-const VisualMemoize = memo(Visual)
 
 
 

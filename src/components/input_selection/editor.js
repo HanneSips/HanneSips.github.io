@@ -1,7 +1,7 @@
 import { Controlled } from "react-codemirror2";
 import { render } from "@testing-library/react";
 import React, { useState, useEffect, useRef } from "react";
-
+import { codeMirrorConfig } from '../visual_playground'
 
 function Editor({ element, state, renameElement }) {
   const [code, setCode] = useState(element.code);
@@ -43,11 +43,7 @@ function Editor({ element, state, renameElement }) {
             element.changeCode(value);
             setCode(value);
           }}
-          options={{
-            mode: "javascript",
-            theme: "material",
-            lineNumbers: true,
-          }}
+          options={codeMirrorConfig}
         />
       </div>
       {errorMessage.length > 0 && (

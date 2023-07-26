@@ -6,8 +6,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 class Obsvable {
-  constructor(number, name = undefined, code = undefined) {
-    this.id = uuidv4()
+  constructor(number, name = undefined, code = undefined, id = undefined) {
+    if (id) {
+      this.id = id
+    } else this.id = uuidv4()
 
     if (name) {
       this.name = name

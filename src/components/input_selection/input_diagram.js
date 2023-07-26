@@ -23,7 +23,9 @@ function InputDiagram({
   renamedElement
 }) {
   const diagramRef = useRef(null);
+  // Combine the three lists using spread operator
   const [nodeDataArray, changeNodeDataArray] = useState([])
+
   const [linkDataArray, changeLinkArray] = useState([]);
   const diagram = useRef();
   const model = useRef();
@@ -227,67 +229,65 @@ function InputDiagram({
   // ON ELEMENT ADDITION / REMOVAL
   useEffect(() => {
     // check new observables? Compare observables and prevObservables
-    const newObservables = observables.filter(element => !prevObservables.current.includes(element));
-    // If yes ==> add node: createNewNode(newElement)
-    newObservables.forEach((observable) => createNewNode(observable, observableRow, observableColumn.current))
-    observableColumn.current = observableColumn.current + 60
-
+    var newObservables = observables.filter(element => !prevObservables.current.includes(element));
+    var removedObservables = prevObservables.current.filter(element => !observables.includes(element));
+    newObservables = newObservables.map(observable => createNewNode(observable, observableRow, observableColumn))
     prevObservables.current = observables
     // update observable emittedvalues array
     prevEmittedValuesArray.current = observables.map(observable => {
       return observable.emittedValues
     });
-  }, [observables])
 
-  useEffect(() => {
-    console.log("observers new effect")
-
-    // check new observers? Compare observers and prevObservers
-    const newObservers = observers.filter(element => !prevObservers.current.includes(element));
-    // If yes ==> add node: createNewNode(newElement)
-    newObservers.forEach((observer) => createNewNode(observer, observerRow, observerColumn.current))
-    observerColumn.current = observerColumn.current + 60
-
+    // check new observers
+    var newObservers = observers.filter(element => !prevObservers.current.includes(element));
+    var removedObservers = prevObservers.current.filter(element => !observers.includes(element));
+    newObservers = newObservers.map((observer) => createNewNode(observer, observerRow, observerColumn))
     prevObservers.current = observers
-  }, [observers])
 
-  useEffect(() => {
-    console.log("params new effect")
-
-    // check new observers? Compare observers and prevObservers
-    const newParams = parameters.filter(element => !prevParameters.current.includes(element));
-    // If yes ==> add node: createNewNode(newElement)
-    newParams.forEach((parameter) => {
-      createNewNode(parameter, parameterRow, parameterColumn.current)
-    })
-    parameterColumn.current = parameterColumn.current + 60
-
-
-    // removed parameters are already removed in the diagram as this is the place where removal is initiated
-
+    // check new parameters
+    var newParams = parameters.filter(element => !prevParameters.current.includes(element));
+    var removedParams = prevParameters.current.filter(element => !parameters.includes(element));
+    newParams = newParams.map((parameter) => createNewNode(parameter, parameterRow, parameterColumn))
     prevParameters.current = parameters
-  }, [parameters])
+
+    const nodesToRemove = [...removedObservables, ...removedObservers, ...removedParams]
+    const cleanedNodeDataArray = removeNodesInBackend(nodeDataArray, nodesToRemove)
+
+    // change nodeArray
+    changeNodeDataArray([...cleanedNodeDataArray, ...newObservables, ...newObservers, ...newParams])
+  }, [observables, observers, parameters])
 
   function createNewNode(element, elementRow, elementColumn) {
-    const node = constructNode(element, elementRow, elementColumn);
-    var newNodeDataArray = [...nodeDataArray, node];
-    if (element.coreCategory !== "parameter") {
-      newNodeDataArray = setNewActiveEditor(element, newNodeDataArray)
-    }
+    const node = constructNode(element, elementRow, elementColumn.current);
+    elementColumn.current = elementColumn.current + 60
 
-    changeNodeDataArray(newNodeDataArray);
+    return node
   }
 
   function removeNodesInDiagram(removedNodesArray) {
+    // function that removes nodes from backend arrays if nodes are removed by user from diagram
+    var newObservablesArray = prevObservables.current
+    var newObserversArray = prevObservers.current
+    var newParametersArray = prevParameters.current
     removedNodesArray.forEach(removedNode => {
       if (removedNode.category === "observable") {
-        changeObservables(prevObservables.current.filter(observable => observable.id !== removedNode.id))
+        newObservablesArray.filter(observable => observable.id !== removedNode.id)
       } else if (removedNode.category === "observer") {
-        changeObservers(prevObservers.current.filter(observer => observer.id !== removedNode.id))
+        newObserversArray.filter(observer => observer.id !== removedNode.id)
       } else if (removedNode.category === "parameter") {
-        changeParameters(prevParameters.current.filter(parameter => parameter.id !== removedNode.id))
+        newParametersArray.filter(parameter => parameter.id !== removedNode.id)
       }
     })
+    changeObservables(newObservablesArray)
+    changeObservers(newObserversArray)
+    changeParameters(newParametersArray)
+  }
+
+  function removeNodesInBackend(oldNodeDataArray, nodesToRemoveArray) {
+    // function that removes nodes from diagram arrays when nodes are removed in backend arrays (for example when visual is uploaded from files)
+    const nodeIdsToRemove = new Set(nodesToRemoveArray.map(node => node.id));
+    const newNodeDataArray = oldNodeDataArray.filter(node => !nodeIdsToRemove.has(node.id))
+    return newNodeDataArray
   }
 
   // ON MODEL CHANGE ==> DIAGRAM SHOULD CHANGE

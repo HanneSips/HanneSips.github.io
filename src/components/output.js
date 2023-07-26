@@ -1,6 +1,7 @@
 import { useState, memo, useRef, useEffect } from "react";
+import { ReactP5Wrapper as Sketch } from "react-p5-wrapper";
 
-function Output({ selected, updateVisualWidth, updateVisualHeight }) {
+function Output({ selected, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvas = document.getElementById('output-canvas');
   console.log("rerender output")
@@ -41,13 +42,40 @@ function Output({ selected, updateVisualWidth, updateVisualHeight }) {
     return () => observer.disconnect();
   }, []);
 
-  return <div ref = {ref} id="output-canvas" style={{height: "100%", width: "100%" }}>
-        {! isFullscreen ? 
-        (<button onClick={openFullScreen}></button>) :
-        (<button onClick={closeFullScreen}></button>)}
-      </div>
+  return <div ref={ref} id="output-canvas" style={{ height: "100%", width: "100%" }}>
+    {!isFullscreen ?
+      (<button onClick={openFullScreen}></button>) :
+      (<button onClick={closeFullScreen}></button>)}
+    <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} />
+  </div>
 }
 
 const MemoizedOutput = memo(Output);
 
-export {MemoizedOutput, Output} 
+// Difficulty: I wanted the input parameters to update constantly, to be up to date with every event,
+// while the output I want to run smoothly, and not rerender constantly. For that I needed to use Memo
+function Visual({ visualCode, visualWidth, visualHeight }) {
+  const sketch = (p) => {
+    function start_canvas() {
+      const canvas = p.createCanvas(visualWidth, visualHeight, p.WEBGL);
+      canvas.parent("output-canvas");
+      return canvas
+    }
+    var canvas
+    p.setup = () => {
+      canvas = start_canvas()
+    };
+    try {
+      eval(visualCode)
+    } catch (error) {
+      console.log("error running visual", error)
+    }
+  };
+  return <div>
+    <Sketch sketch={sketch} />
+  </div>
+}
+
+const VisualMemoize = memo(Visual)
+
+export { MemoizedOutput, Output } 

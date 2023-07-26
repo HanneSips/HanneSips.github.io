@@ -22,6 +22,32 @@ import 'codemirror/addon/fold/comment-fold';
 import 'codemirror/addon/fold/foldgutter.css';
 
 
+const codeMirrorConfig = {
+  mode: "javascript",
+  theme: "material",
+  lineNumbers: true,
+  lineWrapping: true,
+  smartIndent: true,
+  foldGutter: true,
+  gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+  keyMap: 'sublime',
+  matchBrackets: true,
+  extraKeys: {
+    'Ctrl-Space': 'autocomplete'
+  },
+  hintOptions: {
+  },
+  styleActiveLine: true,
+  styleActiveSelected: true,
+  indentUnit: 4,
+  indentWithTabs: true,
+  highlightSelectionMatches: {
+    minChars: 2,
+    showToken: /Hello/,
+    style: 'matchhighlight'
+  }
+}
+
 function VisualPlayground({ visualCode, changeVisualCode }) {
   function handleCodeChange(editor, data, value) {
     editor.showHint({ completeSingle: false });
@@ -36,35 +62,10 @@ function VisualPlayground({ visualCode, changeVisualCode }) {
         className="CodeMirror"
         value={visualCode}
         onBeforeChange={handleCodeChange}
-        options={{
-          mode: "javascript",
-          theme: "material",
-          lineNumbers: true,
-          lineWrapping: true,
-          smartIndent: true,
-          foldGutter: true,
-          gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-          autoCloseTags: true,
-          keyMap: 'sublime',
-          matchBrackets: true,
-          autoCloseBrackets: true,
-          extraKeys: {
-            'Ctrl-Space': 'autocomplete'
-          },
-          hintOptions: {
-          },
-          styleActiveLine: true,
-          styleActiveSelected: true,
-
-          highlightSelectionMatches: {
-            minChars: 2,
-            showToken: /Hello/,
-            style: 'matchhighlight'
-          }
-        }}
+        options={codeMirrorConfig}
       />
     </div>
   );
 }
 
-export default VisualPlayground;
+export { VisualPlayground, codeMirrorConfig };
