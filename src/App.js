@@ -49,7 +49,6 @@ function App() {
   };
 
   function handleMouseEnter() {
-    console.log("mouseenter")
     setTopIsHovered(true);
   }
 
@@ -65,9 +64,7 @@ function App() {
     };
     obs = {}
 
-    console.log("subscriptions: ", subscriptions)
     for (const subscription in subscriptions) {
-      console.log("subbb: ", subscription)
       subscriptions[subscription].unsubscribe()
     }
     subscriptions = {}
@@ -127,13 +124,11 @@ function App() {
 
               resolve();
             } else {
-              console.log('reject no obs!!!')
               observable.setErrorMessage(`observable doesn't return observable: ${observableReturn}`);
               resolve(`observable doesn't return observable: ${observableReturn}`);
             }
           });
         } catch (error) {
-          console.log('reject error!!!')
           observable.setErrorMessage(error.message);
           resolve(error.message);
         }
@@ -169,7 +164,6 @@ function App() {
       /// for any observable that fires a new element, I want to reload all the parameters that changed value
       // Use Object.values to convert the dictionary into an array of observables
       const obsvblsList = Object.values(obs);
-      console.log(obsvblsList)
 
       // Use merge to merge all the observables into a single observable
       var mergedObsvbls
@@ -189,7 +183,6 @@ function App() {
               }
               //newObservableFired(Math.random());
             }
-            //console.log("fire new observable from merged!!")
             newObservableFired(Math.random())
           }
         )
@@ -259,7 +252,6 @@ function App() {
     }
 
     input.onchange = (event) => {
-      console.log("input !!")
       const fileList = event.target.files;
       var newObservables = [];
       var newObservers = [];
@@ -269,7 +261,6 @@ function App() {
         if (subfolder === "visualCode.txt") {
           return readFile(file).then(contents => {
             const visualCode = contents;
-            console.log("new visual code", visualCode);
             // set visualCode equal to txt
             changeVisualCode(visualCode);
           });
@@ -278,7 +269,6 @@ function App() {
             const obs_name = ("file:", file.name.split('_')[0]);
             const obs_id = ("file:", file.name.split('_')[1]);
             const obs_code = contents;
-            console.log(obs_name, obs_code);
             newObservables.push(new Obsvable(0, obs_name, obs_code, obs_id));
           });
         } else if (subfolder === "observers") {
@@ -286,7 +276,6 @@ function App() {
             const obvr_name = ("file:", file.name.split('_')[0]);
             const obvr_id = ("file:", file.name.split('_')[0]);
             const obvr_code = contents;
-            console.log(obvr_name, obvr_code);
             newObservers.push(new Obsvable(0, obvr_name, obvr_code, obvr_id));
           });
         } else if (subfolder === "parameters") {
@@ -374,7 +363,7 @@ function App() {
         <Column
           isSelected={selected === 2}
           onClick={() => handleClick(2)}
-          content={<MemoizedOutput selected={selected === 2}
+          content={<MemoizedOutput selected={selected === 2} paramsDict={params}
             updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight}
             visualWidth={visualWidth} visualHeight={visualHeight} visualCode={visualCode} />}
           colour='lightgray'

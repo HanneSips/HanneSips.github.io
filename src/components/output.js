@@ -1,10 +1,17 @@
 import { useState, memo, useRef, useEffect } from "react";
 import { ReactP5Wrapper as Sketch } from "react-p5-wrapper";
 
-function Output({ selected, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode }) {
+var params = {}
+
+function Output({ selected, paramsDict, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvas = document.getElementById('output-canvas');
   console.log("rerender output")
+
+  // CAN BE IMPROVED SO THAT IT DOESNT RUN WITH EVERY VISUALCODE CHANGE
+  useEffect(() => {
+    params = paramsDict
+  }, [paramsDict, visualCode]);
 
   function openFullScreen() {
     if (canvas.requestFullscreen) {

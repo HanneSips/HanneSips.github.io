@@ -17,7 +17,6 @@ import prebuildObservables from "./prebuild_observables/midiDeviceObservable";
 function InputSelection({
   selected, observables, observers, parameters, changeParameters,
   changeObservables, changeObservers, executeCode, stopExecution, firedObservables, run, upload }) {
-  //console.log("render input")
   const [activeEditor, changeActiveEditor] = useState()
   const [showPrebuiltObservables, setShowPrebuiltObservables] = useState(false);
   const [renamedElement, renameElement] = useState()

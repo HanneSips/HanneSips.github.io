@@ -52,7 +52,6 @@ function InputDiagram({
       e.subject.each(part => {
         removedNodes.push(part.data);
       });
-      console.log("removed nodes: ", removedNodes)
       removeNodesInDiagram(removedNodes);
     });
     diagram.current.addDiagramListener("TextEdited", e => {
@@ -76,7 +75,6 @@ function InputDiagram({
   // when name is changed in editor, the name should also be changed in diagram
   useEffect(() => {
     if (renamedElement) {
-      console.log("element renamed", renamedElement)
       const newNodeDataArray = calculateNewNodeDataArray(nodeDataArray, renamedElement[0])
       changeNodeDataArray(newNodeDataArray)
     }
@@ -146,11 +144,9 @@ function InputDiagram({
   }
 
   function setNewActiveEditor(element, prevNodeDataArray) {
-    console.log("set editor!", element)
     var newNodeDataArray = prevNodeDataArray
     // prev active editor out
     const prevActiveEditor = prevNodeDataArray.find(node => (node.id === activeEditorRef.current))
-    console.log("found active editor:", prevActiveEditor)
     if (prevActiveEditor) {
       prevActiveEditor.element.fill = UNSELECTEDFILL
       newNodeDataArray = calculateNewNodeDataArray(newNodeDataArray, prevActiveEditor.element)
@@ -259,7 +255,6 @@ function InputDiagram({
   function removeNodesInDiagram(removedNodesArray) {
     // function that removes nodes from backend arrays if nodes are removed by user from diagram
     var newObservablesArray = [...prevObservables.current]
-    console.log("pre: ", observables, newObservablesArray)
     var newObserversArray = [...prevObservers.current]
     var newParametersArray = [...prevParameters.current]
     removedNodesArray.forEach(removedNode => {
@@ -272,7 +267,6 @@ function InputDiagram({
       }
     })
     changeObservables(newObservablesArray)
-    console.log("after: ", newObservablesArray)
 
     prevObservables.current = newObservablesArray
     changeObservers(newObserversArray)

@@ -32,7 +32,7 @@ function Editor({ element, state, renameElement }) {
           style={{ display: "block", width: "100%" }}
           type="text"
           value={element.name}
-          onChange={(e) => { console.log("rename!!"); element.changeName(e.target.value); setName(e.target.value); renameElement([element, element.name]) }}
+          onChange={(e) => { element.changeName(e.target.value); setName(e.target.value); renameElement([element, element.name]) }}
         />
       </div>
       <div style={{ display: "block", width: "100%", height: "85%" }}>

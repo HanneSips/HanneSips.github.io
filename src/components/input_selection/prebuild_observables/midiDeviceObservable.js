@@ -11,7 +11,6 @@ const midiInputsObservable = navigator.requestMIDIAccess().then(midiAccess => {
   const midiInputs = midiAccess.inputs
   const inputObservables = Array.from(midiInputs.values()).map(input => rxjs.fromEvent(input, 'midimessage').pipe(
     rxjs.map(event => event.data)))
-  console.log("input obs: ", inputObservables)
   observableMerged = rxjs.merge(...inputObservables);
   return observableMerged
 })
@@ -53,7 +52,6 @@ const audioObservable = navigator.mediaDevices.getUserMedia({ audio: true })
     analyser.connect(audioCtx.destination);
   // fill the Float32Array with data returned from getFloatFrequencyData()
   const Audioobservable = rxjs.interval(1000).pipe(rxjs.map(x => {  analyser.getFloatFrequencyData(freqArray);}))
-	console.log("audio observable", Audioobservable)
   return Audioobservable
   })
 return audioObservable
