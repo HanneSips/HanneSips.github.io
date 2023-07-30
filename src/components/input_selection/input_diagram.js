@@ -25,7 +25,6 @@ function InputDiagram({
   const diagramRef = useRef(null);
   // Combine the three lists using spread operator
   const [nodeDataArray, changeNodeDataArray] = useState([])
-
   const [linkDataArray, changeLinkArray] = useState([]);
   const diagram = useRef();
   const model = useRef();
@@ -53,6 +52,7 @@ function InputDiagram({
       e.subject.each(part => {
         removedNodes.push(part.data);
       });
+      console.log("removed nodes: ", removedNodes)
       removeNodesInDiagram(removedNodes);
     });
     diagram.current.addDiagramListener("TextEdited", e => {
@@ -165,14 +165,6 @@ function InputDiagram({
     return newNodeDataArray
   }
 
-  /*   // ON VISUAL UPLOAD
-    useEffect(() => {
-      createNodes(observables)
-      createNodes(observers)
-      createNodes(parameters)
-      createLinks()
-    }, [upload]) */
-
   // ON OBSERVABLE EMITION
   useEffect(() => {
     // highlight observable / observer / parameter flows that fired 
@@ -266,21 +258,27 @@ function InputDiagram({
 
   function removeNodesInDiagram(removedNodesArray) {
     // function that removes nodes from backend arrays if nodes are removed by user from diagram
-    var newObservablesArray = prevObservables.current
-    var newObserversArray = prevObservers.current
-    var newParametersArray = prevParameters.current
+    var newObservablesArray = [...prevObservables.current]
+    console.log("pre: ", observables, newObservablesArray)
+    var newObserversArray = [...prevObservers.current]
+    var newParametersArray = [...prevParameters.current]
     removedNodesArray.forEach(removedNode => {
       if (removedNode.category === "observable") {
-        newObservablesArray.filter(observable => observable.id !== removedNode.id)
+        newObservablesArray = newObservablesArray.filter(observable => observable.id !== removedNode.id)
       } else if (removedNode.category === "observer") {
-        newObserversArray.filter(observer => observer.id !== removedNode.id)
+        newObserversArray = newObserversArray.filter(observer => observer.id !== removedNode.id)
       } else if (removedNode.category === "parameter") {
-        newParametersArray.filter(parameter => parameter.id !== removedNode.id)
+        newParametersArray = newParametersArray.filter(parameter => parameter.id !== removedNode.id)
       }
     })
     changeObservables(newObservablesArray)
+    console.log("after: ", newObservablesArray)
+
+    prevObservables.current = newObservablesArray
     changeObservers(newObserversArray)
+    prevObservers.current = newObserversArray
     changeParameters(newParametersArray)
+    prevParameters.current = newParametersArray
   }
 
   function removeNodesInBackend(oldNodeDataArray, nodesToRemoveArray) {
