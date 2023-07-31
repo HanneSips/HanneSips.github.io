@@ -48,23 +48,40 @@ const codeMirrorConfig = {
   }
 }
 
-function VisualPlayground({ visualCode, changeVisualCode }) {
+function VisualPlayground({ visualCode, changeVisualCode, codeErrorMessage }) {
   function handleCodeChange(editor, data, value) {
     editor.showHint({ completeSingle: false });
     changeVisualCode(value)
   }
 
-  console.log("render playground", visualCode)
+  useEffect(() => {
+    console.log("code error message: ", codeErrorMessage)
+  }, [codeErrorMessage])
 
   return (
-    <div id="editor" style={{ maxWidth: "100%", height: "100%" }}>
-      <Controlled
-        className="CodeMirror"
-        value={visualCode}
-        onBeforeChange={handleCodeChange}
-        options={codeMirrorConfig}
-      />
+    <div style={{ maxWidth: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: "1", maxWidth: "100%", overflow: "auto" }}>
+        <div id="editor" style={{ maxWidth: "100%", height: "100%" }}>
+          <Controlled
+            className="CodeMirror"
+            value={visualCode}
+            onBeforeChange={handleCodeChange}
+            options={codeMirrorConfig}
+            style={{ maxWidth: "100%" }}
+          />
+        </div>
+      </div>
+      {codeErrorMessage && (
+        <div style={{ flex: "0 0 auto", width: "100%" }}>
+          <textarea
+            value={`Error message: ${codeErrorMessage.message}\nError stack:\n${codeErrorMessage.stack}`}
+            className={`error-message`}
+            style={{ width: "100%", height: "auto", minHeight: "300px" }}
+          />
+        </div>
+      )}
     </div>
+
   );
 }
 

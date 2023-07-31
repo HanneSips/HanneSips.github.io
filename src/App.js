@@ -34,6 +34,7 @@ function App() {
   const [observables, changeObservables] = useState([])
   const [observers, changeObservers] = useState([])
   const [parameters, changeParameters] = useState([])
+  const [codeErrorMessage, setCodeErrorMessage] = useState('')
   const [visualCode, changeVisualCode] = useState(`
   // Variables
 
@@ -214,7 +215,7 @@ function App() {
     })
 
     parameters.forEach((parameter) => {
-      parametersFolder.file(`${parameter.name}_${parameter.id}.txt`, parameter.value);
+      parametersFolder.file(`${parameter.name}_${parameter.id}.txt`, parameter.value.toString());
     })
 
     zip.file('visualCode.txt', visualCode);
@@ -357,13 +358,13 @@ function App() {
         <Column
           isSelected={selected === 1}
           onClick={() => handleClick(1)}
-          content={<VisualPlayground visualCode={visualCode} changeVisualCode={changeVisualCode} />}
+          content={<VisualPlayground visualCode={visualCode} changeVisualCode={changeVisualCode} codeErrorMessage={codeErrorMessage} />}
           colour='gray'
         />
         <Column
           isSelected={selected === 2}
           onClick={() => handleClick(2)}
-          content={<MemoizedOutput selected={selected === 2} paramsDict={params}
+          content={<MemoizedOutput selected={selected === 2} paramsDict={params} setCodeErrorMessage={setCodeErrorMessage}
             updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight}
             visualWidth={visualWidth} visualHeight={visualHeight} visualCode={visualCode} />}
           colour='lightgray'

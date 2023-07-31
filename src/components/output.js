@@ -1,9 +1,10 @@
 import { useState, memo, useRef, useEffect } from "react";
 import { ReactP5Wrapper as Sketch } from "react-p5-wrapper";
+import { timeout } from "rxjs";
 
 var params = {}
 
-function Output({ selected, paramsDict, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode }) {
+function Output({ selected, paramsDict, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode, setCodeErrorMessage }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvas = document.getElementById('output-canvas');
   console.log("rerender output")
@@ -53,7 +54,7 @@ function Output({ selected, paramsDict, updateVisualWidth, updateVisualHeight, v
     {!isFullscreen ?
       (<button onClick={openFullScreen}></button>) :
       (<button onClick={closeFullScreen}></button>)}
-    <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} />
+    <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} setCodeErrorMessage={setCodeErrorMessage} />
   </div>
 }
 
@@ -61,7 +62,7 @@ const MemoizedOutput = memo(Output);
 
 // Difficulty: I wanted the input parameters to update constantly, to be up to date with every event,
 // while the output I want to run smoothly, and not rerender constantly. For that I needed to use Memo
-function Visual({ visualCode, visualWidth, visualHeight }) {
+function Visual({ visualCode, visualWidth, visualHeight, setCodeErrorMessage }) {
   const sketch = (p) => {
     function start_canvas() {
       const canvas = p.createCanvas(visualWidth, visualHeight, p.WEBGL);
@@ -74,8 +75,13 @@ function Visual({ visualCode, visualWidth, visualHeight }) {
     };
     try {
       eval(visualCode)
+      setCodeErrorMessage(undefined)
     } catch (error) {
-      console.log("error running visual", error)
+      setTimeout(() => {
+        console.log("error running visual", error)
+        setCodeErrorMessage(error)
+      },
+        3000)
     }
   };
   return <div>
