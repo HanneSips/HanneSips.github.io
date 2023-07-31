@@ -54,10 +54,6 @@ function VisualPlayground({ visualCode, changeVisualCode, codeErrorMessage }) {
     changeVisualCode(value)
   }
 
-  useEffect(() => {
-    console.log("code error message: ", codeErrorMessage)
-  }, [codeErrorMessage])
-
   return (
     <div style={{ maxWidth: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: "1", maxWidth: "100%", overflow: "auto" }}>
@@ -72,11 +68,11 @@ function VisualPlayground({ visualCode, changeVisualCode, codeErrorMessage }) {
         </div>
       </div>
       {codeErrorMessage && (
-        <div style={{ flex: "0 0 auto", width: "100%" }}>
+        <div style={{ flex: "0 0 auto", width: "99%" }}>
           <textarea
             value={`Error message: ${codeErrorMessage.message}\nError stack:\n${codeErrorMessage.stack}`}
             className={`error-message`}
-            style={{ width: "100%", height: "auto", minHeight: "300px" }}
+            style={{ width: "100%", height: "auto", minHeight: "150px", backgroundColor: "gray" }}
           />
         </div>
       )}

@@ -75,10 +75,13 @@ function Visual({ visualCode, visualWidth, visualHeight, setCodeErrorMessage }) 
     };
     try {
       eval(visualCode)
-      setCodeErrorMessage(undefined)
+      setTimeout(() => {
+        setCodeErrorMessage(undefined)
+      },
+        3000)
+
     } catch (error) {
       setTimeout(() => {
-        console.log("error running visual", error)
         setCodeErrorMessage(error)
       },
         3000)
