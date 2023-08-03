@@ -15,8 +15,11 @@ import JSZip from 'jszip';
 import { Obsvable } from './components/input_selection/observable';
 import { Observer } from './components/input_selection/observer';
 import { VisualParameter } from './components/input_selection/visual_parameters';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 
+const stopObservable$ = new Subject();
 var params = {};
 var obs = {};
 var subscriptions = {}
@@ -59,16 +62,19 @@ function App() {
 
   function stopExecution() {
     params = {}
-    // delete observables
-    for (const observable in obs) {
-      //observable.complete()
-    };
-    obs = {}
 
+    // stop subscriptions
     for (const subscription in subscriptions) {
       subscriptions[subscription].unsubscribe()
     }
     subscriptions = {}
+
+
+    // stop observables
+    stopObservable$.next();
+    stopObservable$.complete();
+
+    obs = {}
   }
 
   function connectObsvblsToObsvrs() {
@@ -104,7 +110,6 @@ function App() {
       params[parameter.name] = parameter.value
     })
 
-
     // detect and store links 
     connectObsvblsToObsvrs()
     connectObsvrsToParams()
@@ -116,7 +121,7 @@ function App() {
           const obsvblFunction = new Function('rxjs', `return (async function () { ${observable.code} })();`);
           const observableReturn = obsvblFunction(rxjs).then((observableReturn) => {
             if (observableReturn instanceof rxjs.Observable) {
-              obs[observable.name] = observableReturn;
+              obs[observable.name] = observableReturn.pipe(takeUntil(stopObservable$));
               // add for each observable a subscription to higher emittedvalue number
               subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
                 observable.emitNewValue()
@@ -179,9 +184,10 @@ function App() {
               const visualParam = parameters.find(vp => vp.name === key)
               const old_value = visualParam.value
               const new_value = params[key]
-              if (visualParam && !(new_value === old_value)) {
-                visualParam.changeValue(params[key]);
-              }
+              //if (visualParam && !(new_value === old_value)) {
+
+              visualParam.changeValue(new_value);
+              //}
               //newObservableFired(Math.random());
             }
             newObservableFired(Math.random())
@@ -277,14 +283,13 @@ function App() {
             const obvr_name = ("file:", file.name.split('_')[0]);
             const obvr_id = ("file:", file.name.split('_')[0]);
             const obvr_code = contents;
-            newObservers.push(new Obsvable(0, obvr_name, obvr_code, obvr_id));
+            newObservers.push(new Observer(0, obvr_name, obvr_code, obvr_id));
           });
         } else if (subfolder === "parameters") {
           return readFile(file).then(contents => {
             const par_name = ("file:", file.name.split('_')[0]);
             const par_id = ("file:", file.name.split('_')[1]);
-            const par_value = contents;
-            newParameters.push(new VisualParameter(0, par_name, par_value, par_id));
+            newParameters.push(new VisualParameter(0, par_name, undefined, par_id));
           });
         }
       });
@@ -364,7 +369,7 @@ function App() {
         <Column
           isSelected={selected === 2}
           onClick={() => handleClick(2)}
-          content={<MemoizedOutput selected={selected === 2} paramsDict={params} setCodeErrorMessage={setCodeErrorMessage}
+          content={<MemoizedOutput selected={selected === 2} paramsDict={params} state={firedObservables} setCodeErrorMessage={setCodeErrorMessage}
             updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight}
             visualWidth={visualWidth} visualHeight={visualHeight} visualCode={visualCode} />}
           colour='lightgray'

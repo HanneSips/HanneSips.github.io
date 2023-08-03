@@ -4,7 +4,7 @@ import { timeout } from "rxjs";
 
 var params = {}
 
-function Output({ selected, paramsDict, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode, setCodeErrorMessage }) {
+function Output({ selected, paramsDict, state, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode, setCodeErrorMessage }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvas = document.getElementById('output-canvas');
   console.log("rerender output")
@@ -12,7 +12,7 @@ function Output({ selected, paramsDict, updateVisualWidth, updateVisualHeight, v
   // CAN BE IMPROVED SO THAT IT DOESNT RUN WITH EVERY VISUALCODE CHANGE
   useEffect(() => {
     params = paramsDict
-  }, [paramsDict, visualCode]);
+  }, [paramsDict, state]);
 
   function openFullScreen() {
     if (canvas.requestFullscreen) {

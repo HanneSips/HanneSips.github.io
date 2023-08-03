@@ -93,7 +93,7 @@ function InputDiagram({
           $.current(go.TextBlock,
             {
               margin: 4, editable: true, font: "bold 14px sans-serif",
-              isMultiline: false, width: 80, textAlign: "center"
+              isMultiline: false, width: 100, textAlign: "center"
             },
             new go.Binding("text", "name").makeTwoWay()),
           $.current("Button",
@@ -211,7 +211,7 @@ function InputDiagram({
           changeNodeDataArray(tempNodeDataArray)
         }
       })
-    }, 500)
+    }, 100)
   }
 
   // ON ELEMENT ADDITION / REMOVAL
@@ -261,16 +261,19 @@ function InputDiagram({
       if (removedNode.category === "observable") {
         newObservablesArray = newObservablesArray.filter(observable => observable.id !== removedNode.id)
       } else if (removedNode.category === "observer") {
-        newObserversArray = newObserversArray.filter(observer => observer.id !== removedNode.id)
+        newObserversArray = newObserversArray.filter(observer => {
+          return observer.id !== removedNode.id
+        })
       } else if (removedNode.category === "parameter") {
         newParametersArray = newParametersArray.filter(parameter => parameter.id !== removedNode.id)
       }
     })
     changeObservables(newObservablesArray)
-
     prevObservables.current = newObservablesArray
+
     changeObservers(newObserversArray)
     prevObservers.current = newObserversArray
+
     changeParameters(newParametersArray)
     prevParameters.current = newParametersArray
   }
@@ -291,15 +294,6 @@ function InputDiagram({
   }, [nodeDataArray, linkDataArray])
 
   function constructNode(element, elementRow, elementColumn) {
-    var valueString
-    if (element.value) {
-      try {
-        valueString = element.value.toString()
-      } catch (error) {
-        valueString = "no string repr" // parameter with value that is not representable as a string
-      }
-    } else (valueString = undefined) // no value (observable / observer)
-
     const node = {
       id: element.id,
       key: element.id,
@@ -308,12 +302,31 @@ function InputDiagram({
       element: element,
       color: element.color,
       location: new go.Point(elementRow, elementColumn),
-      value: valueString,
+      value: castToString(element.value),
       fill: element.fill,
       border: element.border
     }
     //elementRow += 1
     return node
+  }
+
+  function castToString(parameterValue) {
+    var valueString
+    const type = typeof parameterValue;
+    if (parameterValue) {
+      if (Array.isArray(parameterValue)) {
+        valueString = `[${parameterValue.join(', ')}]`;
+      } else if (type === 'object' && parameterValue !== null) {
+        valueString = JSON.stringify(parameterValue);
+      } else {
+        try {
+          valueString = parameterValue.toString()
+        } catch (error) {
+          valueString = "no string repr" // parameter with value that is not representable as a string
+        }
+      }
+    } else (valueString = undefined) // no value (observable / observer)
+    return valueString
   }
 
   function calculateNewNodeDataArray(prevNodeDataArray, element) {
@@ -323,7 +336,7 @@ function InputDiagram({
     if (elementNodeIndex !== -1) {
       nodeToUpdate.name = element.name
       nodeToUpdate.category = element.category
-      nodeToUpdate.value = element.value
+      nodeToUpdate.value = castToString(element.value)
       nodeToUpdate.fill = element.fill
       nodeToUpdate.border = element.border
       newNodeDataArray[elementNodeIndex] = nodeToUpdate;

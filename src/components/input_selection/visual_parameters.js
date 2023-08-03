@@ -13,7 +13,7 @@ class VisualParameter {
 
     if (value) {
       this.value = value
-    } else this.value = 0
+    } else this.value = 5
 
     this.category = 'parameter'
     this.fill = UNSELECTEDFILL
@@ -26,7 +26,7 @@ class VisualParameter {
     this.name = newName
   }
   changeValue(newValue) {
-    this.value = parseInt(newValue);
+    this.value = newValue;
   }
   changeCategory(newCategory) {
     this.category = newCategory
