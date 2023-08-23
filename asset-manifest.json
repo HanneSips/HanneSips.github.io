@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/master_thesis/static/css/main.d8d36342.css",
+    "main.js": "/master_thesis/static/js/main.f4a4d06a.js",
+    "index.html": "/master_thesis/index.html",
+    "main.d8d36342.css.map": "/master_thesis/static/css/main.d8d36342.css.map",
+    "main.f4a4d06a.js.map": "/master_thesis/static/js/main.f4a4d06a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d8d36342.css",
+    "static/js/main.f4a4d06a.js"
+  ]
+}
