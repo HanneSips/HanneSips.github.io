@@ -52,7 +52,7 @@ function InputSelection({
         <button onClick={handleStopClick} style={{ width: "33%" }}>STOP</button>
         <br></br>
         <button onClick={() => (addElement(observables, new Obsvable(observables.length), changeObservables))} style={{ width: "33%" }}>+ OBSERVABLE</button>
-        <button onClick={() => (addElement(observers, new Observer(observers.length), changeObservers))} style={{ width: "33%" }}>+ OBSERVER</button>
+        <button onClick={() => (addElement(observers, new Observer(observers.length), changeObservers))} style={{ width: "33%" }}>+ SUBSCRIPTION</button>
         <button onClick={() => (addElement(parameters, new VisualParameter(parameters.length), changeParameters))} style={{ width: "33%" }}>+ PARAMETER</button>
         <button onClick={() => (setShowPrebuiltObservables(true))} style={{ width: "33%" }}>Browse...</button>
         <InputDiagram

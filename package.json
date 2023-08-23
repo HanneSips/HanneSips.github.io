@@ -1,7 +1,7 @@
 {
   "name": "my-app",
   "version": "0.1.0",
-  "homepage": "https://hannesips.github.io/master_thesis",
+  "homepage": "https://hannesips.github.io/",
   "private": true,
   "dependencies": {
     "5": "0.0.1",

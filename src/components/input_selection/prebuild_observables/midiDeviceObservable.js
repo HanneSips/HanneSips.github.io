@@ -14,7 +14,7 @@ const midiInputsObservable = navigator.requestMIDIAccess().then(midiAccess => {
   observableMerged = rxjs.merge(...inputObservables);
   return observableMerged
 })
-return midiInputsObservable
+observable = midiInputsObservable
 `
 midiObservable.changeCode(midiCode)
 midiObservable.changeName("midiSignal")
@@ -25,11 +25,11 @@ prebuildObservables.push(midiObservable)
 // KEY PRESS
 const keypressObservable = new Obsvable(1)
 const keypressCode = `
-    return rxjs.fromEvent(document, 'keydown')
-      .pipe(
-        // change key code here if required:
-        rxjs.filter(event => event.code === 'space')
-        ) `
+observable = rxjs.fromEvent(document, 'keydown')
+                 .pipe(
+                    // change key code here if required:
+                    rxjs.filter(event => event.code === 'space')
+                  ) `
 keypressObservable.changeCode(keypressCode)
 keypressObservable.changeName("keyPress")
 
@@ -60,7 +60,7 @@ const audioObservable = navigator.mediaDevices.getUserMedia({ audio: true })
 	)
   return Audioobservable
   })
-return audioObservable
+observable = audioObservable
      
      `
 audioObservable.changeCode(audioCode)

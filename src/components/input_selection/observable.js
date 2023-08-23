@@ -17,11 +17,13 @@ class Obsvable {
 
     if (code) {
       this.code = code
-    } else this.code = `//Observable
-    return rxjs.fromEvent(document, 'keydown')
-      .pipe(
-        rxjs.filter(event => event.code === 'ArrowUp')
-        ) `
+    } else this.code = `// You can declare global variables in the following way:
+// GLOB["global_var"] = "test"
+
+//Observable
+observable = rxjs.fromEvent(document, 'keydown')
+                 .pipe(rxjs.filter(event => event.code === 'ArrowUp')) 
+  `
 
     this.emittedValues = 0
     this.errorMessage = ''

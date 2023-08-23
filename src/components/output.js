@@ -2,17 +2,19 @@ import { useState, memo, useRef, useEffect } from "react";
 import { ReactP5Wrapper as Sketch } from "react-p5-wrapper";
 import { timeout } from "rxjs";
 
-var params = {}
+var PAR = {}
+var GLOB = {}
 
-function Output({ selected, paramsDict, state, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode, setCodeErrorMessage }) {
+function Output({ selected, paramsDict, globDict, state, updateVisualWidth, updateVisualHeight, visualWidth, visualHeight, visualCode, setCodeErrorMessage }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const canvas = document.getElementById('output-canvas');
   console.log("rerender output")
 
   // CAN BE IMPROVED SO THAT IT DOESNT RUN WITH EVERY VISUALCODE CHANGE
   useEffect(() => {
-    params = paramsDict
-  }, [paramsDict, state]);
+    PAR = paramsDict
+    GLOB = globDict
+  }, [paramsDict, globDict, state]);
 
   function openFullScreen() {
     if (canvas.requestFullscreen) {
@@ -25,16 +27,20 @@ function Output({ selected, paramsDict, state, updateVisualWidth, updateVisualHe
     setIsFullscreen(true);
   }
 
-  function closeFullScreen() {
-    if (canvas.exitFullscreen) {
-      canvas.exitFullscreen();
-    } else if (canvas.webkitExitFullscreen) {
-      canvas.webkitExitFullscreen();
-    } else if (canvas.msExitFullscreen) {
-      canvas.msExitFullscreen();
-    }
-    setIsFullscreen(false);
-  }
+  useEffect(() => {
+    // Add event listener for fullscreenchange event
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const ref = useRef(null);
 
@@ -50,11 +56,13 @@ function Output({ selected, paramsDict, state, updateVisualWidth, updateVisualHe
     return () => observer.disconnect();
   }, []);
 
-  return <div ref={ref} id="output-canvas" style={{ height: "100%", width: "100%" }}>
+  return <div ref={ref} id="output-canvas" style={{ height: "100%", width: "100%", position: "relative" }}>
+    <VisualMemoize visualCode={visualCode} canvasWidth={visualWidth} canvasHeight={visualHeight} setCodeErrorMessage={setCodeErrorMessage} />
     {!isFullscreen ?
-      (<button onClick={openFullScreen}></button>) :
-      (<button onClick={closeFullScreen}></button>)}
-    <VisualMemoize visualCode={visualCode} visualWidth={visualWidth} visualHeight={visualHeight} setCodeErrorMessage={setCodeErrorMessage} />
+      (<button onClick={openFullScreen} style={{ position: "absolute", bottom: 0, right: 0 }}>
+        [  ]
+      </button>) : null
+    }
   </div>
 }
 
@@ -62,15 +70,15 @@ const MemoizedOutput = memo(Output);
 
 // Difficulty: I wanted the input parameters to update constantly, to be up to date with every event,
 // while the output I want to run smoothly, and not rerender constantly. For that I needed to use Memo
-function Visual({ visualCode, visualWidth, visualHeight, setCodeErrorMessage }) {
-  const sketch = (p) => {
+function Visual({ visualCode, canvasWidth, canvasHeight, setCodeErrorMessage }) {
+  const sketch = (p5) => {
     function start_canvas() {
-      const canvas = p.createCanvas(visualWidth, visualHeight, p.WEBGL);
+      const canvas = p5.createCanvas(canvasWidth, canvasHeight, p5.WEBGL);
       canvas.parent("output-canvas");
       return canvas
     }
     var canvas
-    p.setup = () => {
+    p5.setup = () => {
       canvas = start_canvas()
     };
     try {

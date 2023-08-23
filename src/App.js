@@ -20,9 +20,10 @@ import { Subject } from 'rxjs';
 
 
 const stopObservable$ = new Subject();
-var params = {};
-var obs = {};
+var PAR = {};
+var OBS = {};
 var subscriptions = {}
+var GLOB = {}
 
 function App() {
   const [run, newRun] = useState(0)
@@ -39,13 +40,18 @@ function App() {
   const [parameters, changeParameters] = useState([])
   const [codeErrorMessage, setCodeErrorMessage] = useState('')
   const [visualCode, changeVisualCode] = useState(`
-  // Variables
+// canvasWidth and canvasHeight can be used in the code
+// The dictionaries GLOB (global variables) and PAR (parameters) can be used in the code
 
+var radius = 100
 
-  // DRAW FUNCTION
-  p.draw = () => {
-    p.background("rgb(0,0,0)")  
-  };
+// DRAW FUNCTION: executed in loop
+p5.draw = () => {
+  p5.background("rgb(0,0,0)") 
+  p5.circle(0, 0, radius) 
+
+  // radius += 0.1
+};
   `);
 
   const handleClick = (index) => {
@@ -61,7 +67,8 @@ function App() {
   }
 
   function stopExecution() {
-    params = {}
+    PAR = {}
+    GLOB = {}
 
     // stop subscriptions
     for (const subscription in subscriptions) {
@@ -74,7 +81,7 @@ function App() {
     stopObservable$.next();
     stopObservable$.complete();
 
-    obs = {}
+    OBS = {}
   }
 
   function connectObsvblsToObsvrs() {
@@ -107,23 +114,31 @@ function App() {
 
     // Create parameters
     parameters.forEach(parameter => {
-      params[parameter.name] = parameter.value
+      PAR[parameter.name] = parameter.value
     })
 
     // detect and store links 
     connectObsvblsToObsvrs()
     connectObsvrsToParams()
 
+    const defineObservable = `var observable = null`
+    const returnObservable = `return observable`
+
     // Create observables in async way
     const observablePromises = observables.map(observable => {
       return new Promise((resolve, reject) => {
         try {
-          const obsvblFunction = new Function('rxjs', `return (async function () { ${observable.code} })();`);
+          const obsvblFunction = new Function('rxjs', `return (async function () {
+${defineObservable} 
+${observable.code} 
+${returnObservable}
+          }
+          )();`);
           const observableReturn = obsvblFunction(rxjs).then((observableReturn) => {
             if (observableReturn instanceof rxjs.Observable) {
-              obs[observable.name] = observableReturn.pipe(takeUntil(stopObservable$));
+              OBS[observable.name] = observableReturn.pipe(takeUntil(stopObservable$));
               // add for each observable a subscription to higher emittedvalue number
-              subscriptions[`${observable.name}_colour`] = obs[observable.name].subscribe(() => {
+              subscriptions[`${observable.name}_colour`] = OBS[observable.name].subscribe(() => {
                 observable.emitNewValue()
               })
               observable.setErrorMessage('')
@@ -151,12 +166,18 @@ function App() {
     });
 
     function createObservers() {
+      const defineObserver = `var subscription = null`
+      const returnObserver = `return subscription`
       // Create observers
       observers.forEach(observer => {
         try {
-          const functionCode = `${observer.code}; `
-          const obsrvrFunction = new Function('obs', 'params', functionCode)
-          subscriptions[observer.name] = obsrvrFunction(obs, params)
+          const functionCode = `
+${defineObserver} 
+${observer.code} 
+${returnObserver}; 
+`
+          const obsrvrFunction = new Function('OBS', 'PAR', 'GLOB', functionCode)
+          subscriptions[observer.name] = obsrvrFunction(OBS, PAR, GLOB)
           observer.setErrorMessage('')
         } catch (error) {
           console.log("error!!!")
@@ -164,26 +185,26 @@ function App() {
         }
       });
     }
-
+    console.log(GLOB)
 
     function makeMergedObserver() {
       /// for any observable that fires a new element, I want to reload all the parameters that changed value
       // Use Object.values to convert the dictionary into an array of observables
-      const obsvblsList = Object.values(obs);
+      const obsvblsList = Object.values(OBS);
 
       // Use merge to merge all the observables into a single observable
       var mergedObsvbls
       if (obsvblsList.length > 0) {
         mergedObsvbls = rxjs.merge(...obsvblsList);
 
-        obs['mergedObservable'] = mergedObsvbls
+        OBS['mergedObservable'] = mergedObsvbls
         subscriptions["inputPassing"] = mergedObsvbls.subscribe(
           () => {
             // Update parameter values
-            for (const key in params) {
+            for (const key in PAR) {
               const visualParam = parameters.find(vp => vp.name === key)
               const old_value = visualParam.value
-              const new_value = params[key]
+              const new_value = PAR[key]
               //if (visualParam && !(new_value === old_value)) {
 
               visualParam.changeValue(new_value);
@@ -369,13 +390,13 @@ function App() {
         <Column
           isSelected={selected === 2}
           onClick={() => handleClick(2)}
-          content={<MemoizedOutput selected={selected === 2} paramsDict={params} state={firedObservables} setCodeErrorMessage={setCodeErrorMessage}
+          content={<MemoizedOutput selected={selected === 2} paramsDict={PAR} globDict={GLOB} state={firedObservables} setCodeErrorMessage={setCodeErrorMessage}
             updateVisualWidth={updateVisualWidth} updateVisualHeight={updateVisualHeight}
             visualWidth={visualWidth} visualHeight={visualHeight} visualCode={visualCode} />}
           colour='lightgray'
         />
       </div>
-    </div >
+    </div>
   );
 };
 

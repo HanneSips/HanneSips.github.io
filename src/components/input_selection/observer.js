@@ -16,14 +16,13 @@ class Observer {
 
     if (name) {
       this.name = name
-    } else this.name = `#OBSVR${number}`
+    } else this.name = `#SUB${number}`
 
     if (code) {
       this.code = code
-    } else this.code = `
-    return obs["#OBS0"].subscribe(
-      () => { params["#PARAM0"] = params["#PARAM0"] + 10; }
-    )`;
+    } else this.code = `subscription = OBS["#OBS0"].subscribe(
+  () => { PAR["#PAR0"] = PAR["#PAR0"] + 10; }
+)`;
     this.highlight = 0
     this.errorMessage = ''
     this.category = 'observer'
