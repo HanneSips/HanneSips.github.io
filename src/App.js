@@ -86,6 +86,11 @@ p5.draw = () => {
     OBS = {}
   }
 
+  useEffect(() => {
+    GLOB["canvasWidth"] = visualWidth
+    GLOB["canvasHeight"] = visualHeight
+  }, [visualWidth, visualHeight]);
+
   function connectObsvblsToObsvrs() {
     observables.forEach(observable => {
       observable.observers = []
