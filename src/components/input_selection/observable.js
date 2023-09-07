@@ -13,7 +13,7 @@ class Obsvable {
 
     if (name) {
       this.name = name
-    } else this.name = `#OBS${number}`
+    } else this.name = `OBS${number}`
 
     if (code) {
       this.code = code

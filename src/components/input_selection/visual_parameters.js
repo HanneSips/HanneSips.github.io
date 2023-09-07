@@ -9,7 +9,7 @@ class VisualParameter {
     } else this.id = uuidv4()
     if (name) {
       this.name = name
-    } else this.name = `#PAR${number}`
+    } else this.name = `PAR${number}`
 
     if (value) {
       this.value = value

@@ -16,12 +16,12 @@ class Observer {
 
     if (name) {
       this.name = name
-    } else this.name = `#SUB${number}`
+    } else this.name = `SUB${number}`
 
     if (code) {
       this.code = code
-    } else this.code = `subscription = OBS["#OBS0"].subscribe(
-  () => { PAR["#PAR0"] = PAR["#PAR0"] + 10; }
+    } else this.code = `subscription = OBS["OBS0"].subscribe(
+  () => { PAR["PAR0"] = PAR["PAR0"] + 10; }
 )`;
     this.highlight = 0
     this.errorMessage = ''
