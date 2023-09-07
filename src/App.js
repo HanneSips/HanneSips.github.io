@@ -71,6 +71,8 @@ p5.draw = () => {
   function stopExecution() {
     PAR = {}
     GLOB = {}
+    GLOB["canvasWidth"] = visualWidth
+    GLOB["canvasHeight"] = visualHeight
 
     // stop subscriptions
     for (const subscription in subscriptions) {
