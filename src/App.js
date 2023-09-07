@@ -43,15 +43,17 @@ function App() {
 // canvasWidth and canvasHeight can be used in the code
 // The dictionaries GLOB (global variables) and PAR (parameters) can be used in the code
 
-var radius = 100
+var radius = 500
 
 // DRAW FUNCTION: executed in loop
 p5.draw = () => {
   p5.background("rgb(0,0,0)") 
   p5.circle(0, 0, radius) 
+  //radius += 0.5
 
-  // radius += 0.1
+  //p5.circle(0, 0, PAR["radius"]) 
 };
+  
   `);
 
   const handleClick = (index) => {
@@ -128,13 +130,13 @@ p5.draw = () => {
     const observablePromises = observables.map(observable => {
       return new Promise((resolve, reject) => {
         try {
-          const obsvblFunction = new Function('rxjs', `return (async function () {
+          const obsvblFunction = new Function('rxjs', 'OBS', 'PAR', 'GLOB', `return (async function () {
 ${defineObservable} 
 ${observable.code} 
 ${returnObservable}
           }
           )();`);
-          const observableReturn = obsvblFunction(rxjs).then((observableReturn) => {
+          const observableReturn = obsvblFunction(rxjs, OBS, PAR, GLOB).then((observableReturn) => {
             if (observableReturn instanceof rxjs.Observable) {
               OBS[observable.name] = observableReturn.pipe(takeUntil(stopObservable$));
               // add for each observable a subscription to higher emittedvalue number

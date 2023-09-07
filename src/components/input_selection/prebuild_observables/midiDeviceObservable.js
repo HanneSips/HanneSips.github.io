@@ -72,9 +72,7 @@ prebuildObservables.push(audioObservable)
 // interval
 const intervalObservable = new Obsvable(3)
 const intervalCode = `
-const numbers = rxjs.interval(1000);
- 
-return numbers
+observable = rxjs.interval(1000);
 `
 
 intervalObservable.changeCode(intervalCode)
