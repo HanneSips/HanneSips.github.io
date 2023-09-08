@@ -13,7 +13,7 @@ class VisualParameter {
 
     if (value) {
       this.value = value
-    } else this.value = 5
+    } else this.value = null
 
     this.category = 'parameter'
     this.fill = UNSELECTEDFILL

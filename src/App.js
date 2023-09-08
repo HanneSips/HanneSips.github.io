@@ -89,8 +89,9 @@ p5.draw = () => {
   }
 
   useEffect(() => {
-    GLOB["canvasWidth"] = visualWidth
-    GLOB["canvasHeight"] = visualHeight
+    //GLOB["canvasWidth"] = visualWidth
+    //GLOB["canvasHeight"] = visualHeight
+    executeDynamicParams()
   }, [visualWidth, visualHeight]);
 
   function connectObsvblsToObsvrs() {
